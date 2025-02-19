@@ -27,6 +27,10 @@ type FormValues = {
     simConfig: {
         pin: string;
     };
+    tailscale: {
+        website: string;
+        public_ip: string;
+    };
 };
 
 export default function ConfigPage() {
@@ -44,7 +48,11 @@ export default function ConfigPage() {
             simConfig: {
                 pin: "",
             },
-        },
+            tailscale: {
+                website: "",
+                public_ip: ""
+            }
+        }
     });
 
     const { fields, append, remove } = useFieldArray({
