@@ -53,7 +53,7 @@ export default function HomePage() {
             <section className="flex flex-col gap-4 items-start h-full w-full">
                 <h1 className="text-2xl font-extrabold p-0 m-0">General</h1>
                 <section className="flex flex-col items-start justify-center">
-                    <h2 className="text-xl font-bold p-0 m-0">· Sistema</h2>
+                    <h2 className="text-xl font-bold p-0 m-0">Sistema</h2>
                     <p className="p-0 pl-4 m-0 cursor-pointer hover:underline hover:text-[#333]" onClick={() => {
                         copyToClipboard(time);
                         toast({
@@ -74,7 +74,7 @@ export default function HomePage() {
                 </section>
 
                 <section className="flex flex-col items-start justify-center">
-                    <h2 className="text-xl font-bold p-0 m-0">· Red</h2>
+                    <h2 className="text-xl font-bold p-0 m-0">Red</h2>
                     <p className="p-0 pl-4 m-0 cursor-pointer hover:underline hover:text-[#333]" onClick={() => {
                         copyToClipboard(config.networkConfig.ipAddress);
                         toast({
@@ -107,7 +107,7 @@ export default function HomePage() {
                     </section>
                 </section>
                 <section className="flex flex-col items-start justify-center">
-                    <h2 className="text-xl font-bold p-0 m-0">· Tailscale</h2>
+                    <h2 className="text-xl font-bold p-0 m-0">Tailscale</h2>
                     {tailscaleStatus === 'unknow' &&
                         <p className="flex flex-row gap-2 items-center justify-center"><span className="w-4 h-4 rounded-full bg-[#555]" /> Desconocido</p>
                     }

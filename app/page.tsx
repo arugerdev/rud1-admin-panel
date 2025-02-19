@@ -1,5 +1,6 @@
 "use client"
 
+import ConfigPage from "@/components/config";
 import HomePage from "@/components/home";
 import { Navbar } from "@/components/navbar";
 import { useState } from "react";
@@ -11,7 +12,7 @@ export default function Home() {
       <Navbar setPage={setPage} />
       <main className="flex flex-col gap-8 items-center h-full w-full">
         {(page === 'general') && <HomePage />}
-        {(page === 'config') && <h1>Panel de configuración</h1>}
+        {(page === 'config') && <ConfigPage />}
         {(page === 'services') && <h1>Panel de servicios</h1>}
         {(page === 'details') && <h1>Detalles</h1>}
         {(page === 'help') && <h1>Ayuda</h1>}
