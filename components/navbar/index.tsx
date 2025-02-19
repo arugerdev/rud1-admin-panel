@@ -32,28 +32,28 @@ export function Navbar({ setPage }: Readonly<{ setPage: React.Dispatch<React.Set
                     </button>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                    <button onClick={() => setPage('services')}>
+                    <button disabled onClick={() => setPage('services')}>
                         <NavigationMenuLink className={`md:text-normal text-sm ${navigationMenuTriggerStyle()}`}>
                             Servicios
                         </NavigationMenuLink>
                     </button>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                    <button onClick={() => setPage('details')}>
-                        <NavigationMenuLink className={`md:text-normal text-sm ${navigationMenuTriggerStyle()}`}>
+                    <button disabled className="text-[#AAA]" onClick={() => setPage('details')}>
+                        <NavigationMenuLink className={` md:text-normal text-sm ${navigationMenuTriggerStyle()}`}>
                             Detalles
                         </NavigationMenuLink>
                     </button>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                    <button onClick={() => setPage('actions')}>
+                    <button disabled onClick={() => setPage('actions')}>
                         <NavigationMenuLink className={`md:text-normal text-sm ${navigationMenuTriggerStyle()}`}>
                             Acciones
                         </NavigationMenuLink>
                     </button>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                    <button onClick={() => setPage('help')}>
+                    <button disabled onClick={() => setPage('help')}>
                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                             Ayuda
                         </NavigationMenuLink>

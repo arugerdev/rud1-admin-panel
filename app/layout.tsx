@@ -6,6 +6,7 @@ import "./globals.css";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
+import { Button } from "@/components/ui/button";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -60,6 +61,9 @@ export default function RootLayout({
       >
         <Toaster />
         {(!isAuthenticated ? null : children)}
+        <footer className="absolute bottom-0 w-full text-center text-xs p-2">
+          <a href="https://dashboard.rud1.es">www.rud1.es</a>
+        </footer>
       </body>
     </html>
   );

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import {
     Form,
     FormField,
@@ -15,12 +15,16 @@ import {
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import { cn } from "@/lib/utils";
-import { NEVER } from "zod";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectLabel, SelectItem } from "../ui/select";
 
 type FormValues = {
     deviceName: string;
     networkConfig: {
+        interfaces: {
+            name: string;
+            type: string;
+            method: string;
+        }[];
         ipAddress: string;
         gateway: string;
         dns: string[];
@@ -45,6 +49,10 @@ export default function ConfigPage() {
                 ipAddress: "",
                 gateway: "",
                 dns: ["", ""],
+                interfaces: [
+                    { name: "eth0", type: "Ethernet", method: "dhcp" },
+                    { name: "wlan0", type: "Wi-Fi", method: "dhcp" },
+                ],
             },
             simConfig: {
                 pin: "",
@@ -56,11 +64,11 @@ export default function ConfigPage() {
         }
     });
 
-    const { fields, append, remove } = useFieldArray({
-        control: form.control,
-        name: NEVER,
-        rules: { minLength: 1, maxLength: 5 }
-    })
+    // const { fields, append, remove } = useFieldArray({
+    //     control: form.control,
+    //     name: NEVER,
+    //     rules: { minLength: 1, maxLength: 5 }
+    // })
 
     useEffect(() => {
         fetch("/api/config")
@@ -77,11 +85,7 @@ export default function ConfigPage() {
             console.log({ config });
         }
     }, [config]);
-    useEffect(() => {
-        if (fields) {
-            console.log({ fields });
-        }
-    }, [fields]);
+
 
     const onSubmit = async (values: any) => {
         try {
@@ -108,36 +112,36 @@ export default function ConfigPage() {
 
     return (
         <section className="flex flex-col items-start gap-8 px-16 w-full h-full">
-            <section className="flex flex-col gap-0 p-0 m-0">
-                <h1 className="text-xl font-bold">{config.deviceName}</h1>
-                <h2 className="text-sm">{config.tailscale.website}</h2>
-            </section>
-
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 w-full h-full">
-                    <h1 className="font-extrabold text-xl">Configuración General</h1>
 
-                    <FormField
-                        control={form.control}
-                        name="deviceName"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Nombre del dispositivo:</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Nombre" {...field} />
-                                </FormControl>
-                            </FormItem>
-                        )}
-                    />
-                    <section className="flex flex-row">
+                    <section className="flex flex-row gap-12 w-full h-full">
                         <section className="flex flex-col w-1/2 gap-4">
-                            <h1 className="font-extrabold text-xl">Configuración de Red</h1>
+                            <section className="flex flex-col gap-0 p-0 m-0">
+                                <h1 className="text-xl font-bold">{config.deviceName}</h1>
+                                <h2 className="text-sm">{config.tailscale.website}</h2>
+                            </section>
                             <Alert variant="destructive" >
                                 <AlertTitle>Espera!</AlertTitle>
                                 <AlertDescription>
                                     Antes de cambiar la configuración de red, asegúrate de que los valores son correctos para cada situación. Si no estás seguro, consulta con el administrador de red.
                                 </AlertDescription>
                             </Alert>
+                            <h1 className="font-extrabold text-xl">Configuración General</h1>
+                            <FormField
+                                control={form.control}
+                                name="deviceName"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Nombre del dispositivo:</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="Nombre" {...field} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+                            <h1 className="font-extrabold text-xl">Configuración de Red</h1>
+
                             <FormField
                                 control={form.control}
                                 name="networkConfig.ipAddress"
@@ -166,36 +170,22 @@ export default function ConfigPage() {
 
 
                             <div>
-                                {fields.map((d, i) => (
-                                    <FormField
-                                        control={form.control}
-                                        key={d.id}
-                                        name={`networkConfig.dns`}
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel className={cn(i !== 0 && "sr-only")}>
-                                                    DNS
-                                                </FormLabel>
-                                                <FormDescription className={cn(i !== 0 && "sr-only")}>
-                                                    Add DNS for system
-                                                </FormDescription>
-                                                <FormControl>
-                                                    <Input {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                ))}
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    className="mt-2"
-                                    onClick={() => append({ value: "" })}
-                                >
-                                    Añadir DNS
-                                </Button>
+                                <FormField
+                                    control={form.control}
+                                    name={`networkConfig.dns`}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>
+                                                DNS
+                                            </FormLabel>
+                                            <FormControl>
+                                                <Input {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
                             </div>
 
 
@@ -213,15 +203,56 @@ export default function ConfigPage() {
                                 )}
                             />
                         </section>
-                        <section className="flex flex-col w-1/2">
+                        <section className="flex flex-col w-1/2 h-full gap-4">
+                            {/* Configuración de cada interfaz de red (Solo quiero configurar el tipo de metodo DHCP o ESTATICA) */}
+                            <h1 className="font-extrabold text-xl">Interfaces de Red</h1>
+                            <section className="flex flex-col gap-2">
+                                {config.networkConfig.interfaces.map((int, i) => (
+                                    <section key={int.name + i} className="flex flex-row gap-4">
+                                        <h2 className="font-bold">{int.name} ({int.type})</h2>
+                                        <FormField
+                                            control={form.control}
+                                            name={`networkConfig.interfaces.${i}.method`}
+                                            render={({ field }) => (
+                                                <MethodSelect field={field} />
+                                            )}
+                                        />
+                                    </section>
+                                ))}
 
+                            </section>
                         </section>
                     </section>
                     <section className="flex flex-row justify-end w-full pt-4">
-                        <Button type="submit">Guardar</Button>
+                        <Button type="submit" size={'lg'} className="text-xl">Guardar</Button>
                     </section>
                 </form>
             </Form>
         </section>
     );
+}
+
+
+const MethodSelect = ({ field }: { field: any }) => {
+    return (
+        <FormItem>
+
+            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Selecciona un método" />
+                    </SelectTrigger>
+                </FormControl>
+
+                <SelectContent>
+                    <SelectGroup>
+                        <SelectLabel>Fruits</SelectLabel>
+                        <SelectItem value="dhcp">DHCP</SelectItem>
+                        <SelectItem value="static">Estatica</SelectItem>
+                        <SelectItem value="ppp">ppp</SelectItem>
+                    </SelectGroup>
+                </SelectContent>
+            </Select>
+        </FormItem>
+    )
 }
