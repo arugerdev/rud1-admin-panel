@@ -32,7 +32,7 @@ export function Navbar({ setPage }: Readonly<{ setPage: React.Dispatch<React.Set
                     </button>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                    <button disabled onClick={() => setPage('services')}>
+                    <button disabled className="text-[#AAA]" onClick={() => setPage('services')}>
                         <NavigationMenuLink className={`md:text-normal text-sm ${navigationMenuTriggerStyle()}`}>
                             Servicios
                         </NavigationMenuLink>
@@ -46,14 +46,14 @@ export function Navbar({ setPage }: Readonly<{ setPage: React.Dispatch<React.Set
                     </button>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                    <button disabled onClick={() => setPage('actions')}>
+                    <button disabled className="text-[#AAA]" onClick={() => setPage('actions')}>
                         <NavigationMenuLink className={`md:text-normal text-sm ${navigationMenuTriggerStyle()}`}>
                             Acciones
                         </NavigationMenuLink>
                     </button>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                    <button disabled onClick={() => setPage('help')}>
+                    <button disabled className="text-[#AAA]" onClick={() => setPage('help')}>
                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                             Ayuda
                         </NavigationMenuLink>

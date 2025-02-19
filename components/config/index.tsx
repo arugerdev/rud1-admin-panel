@@ -246,7 +246,7 @@ const MethodSelect = ({ field }: { field: any }) => {
 
                 <SelectContent>
                     <SelectGroup>
-                        <SelectLabel>Fruits</SelectLabel>
+                        <SelectLabel>Metodos</SelectLabel>
                         <SelectItem value="dhcp">DHCP</SelectItem>
                         <SelectItem value="static">Estatica</SelectItem>
                         <SelectItem value="ppp">ppp</SelectItem>
