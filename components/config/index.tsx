@@ -16,6 +16,7 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { cn } from "@/lib/utils";
+import { NEVER } from "zod";
 
 type FormValues = {
     deviceName: string;
@@ -57,7 +58,7 @@ export default function ConfigPage() {
 
     const { fields, append, remove } = useFieldArray({
         control: form.control,
-        name: "networkConfig.dns",
+        name: NEVER,
         rules: { minLength: 1, maxLength: 5 }
     })
 
