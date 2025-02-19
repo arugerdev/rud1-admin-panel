@@ -4,8 +4,8 @@ const CONFIG_PATH = "/etc/config.json";
 // const CONFIG_PATH = "C:/Users/usuario/Documentos/config.json";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    console.log(process.cwd() )
-    
+    console.log(process.cwd())
+
     try {
         const data = await fs.readFile(process.cwd() + CONFIG_PATH, "utf-8");
         const json = JSON.parse(data);
