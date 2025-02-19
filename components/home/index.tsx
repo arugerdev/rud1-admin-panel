@@ -44,11 +44,11 @@ export default function HomePage() {
 
     if (!config) return <p>Cargando...</p>;
     return (
-        <section className="flex flex-row items-start justify-start w-full gap-16 font-[family-name:var(--font-geist-sans)]">
+        <section className="flex flex-col md:flex-row items-center md:items-start justify-center md:justify-start px-8 md:px-0 w-full gap-16 font-[family-name:var(--font-geist-sans)]">
             <section className="flex flex-col gap-0 items-center h-full w-full">
                 <h1 className="text-xl font-bold p-0 m-0">{config?.deviceName}</h1>
                 <h2 className="text-sm font-normal p-0 m-0">{config?.tailscale.website}</h2>
-                <Image src={RUD1DEVICE} alt="" className="px-8 max-w-[700px]" />
+                <Image src={RUD1DEVICE} alt="" className="px-8 max-w-[700px] w-full" />
             </section>
             <section className="flex flex-col gap-4 items-start h-full w-full">
                 <h1 className="text-2xl font-extrabold p-0 m-0">General</h1>

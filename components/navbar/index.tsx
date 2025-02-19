@@ -26,28 +26,28 @@ export function Navbar({ setPage }: Readonly<{ setPage: React.Dispatch<React.Set
 
                 <NavigationMenuItem>
                     <button onClick={() => setPage('config')}>
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        <NavigationMenuLink className={`md:text-normal text-sm ${navigationMenuTriggerStyle()}`}>
                             Configuración
                         </NavigationMenuLink>
                     </button>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                     <button onClick={() => setPage('services')}>
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        <NavigationMenuLink className={`md:text-normal text-sm ${navigationMenuTriggerStyle()}`}>
                             Servicios
                         </NavigationMenuLink>
                     </button>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                     <button onClick={() => setPage('details')}>
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        <NavigationMenuLink className={`md:text-normal text-sm ${navigationMenuTriggerStyle()}`}>
                             Detalles
                         </NavigationMenuLink>
                     </button>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                     <button onClick={() => setPage('actions')}>
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        <NavigationMenuLink className={`md:text-normal text-sm ${navigationMenuTriggerStyle()}`}>
                             Acciones
                         </NavigationMenuLink>
                     </button>
