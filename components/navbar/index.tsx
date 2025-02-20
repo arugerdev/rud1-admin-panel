@@ -46,7 +46,7 @@ export function Navbar({ setPage }: Readonly<{ setPage: React.Dispatch<React.Set
                     </button>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                    <button disabled className="text-[#AAA]" onClick={() => setPage('actions')}>
+                    <button onClick={() => setPage('actions')}>
                         <NavigationMenuLink className={`md:text-normal text-sm ${navigationMenuTriggerStyle()}`}>
                             Acciones
                         </NavigationMenuLink>
