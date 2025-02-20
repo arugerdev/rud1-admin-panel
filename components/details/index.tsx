@@ -13,7 +13,7 @@ export default function DetailsPage() {
             // Obtener temperatura del CPU
             fetch("/api/execute?command=cat /sys/class/thermal/thermal_zone0/temp")
                 .then((res) => res.json())
-                .then((data) => setCpuTemp(parseInt(data) / 1000 + "°C"))
+                .then((data) => setCpuTemp(parseInt(data.output[0]) / 1000 + "°C"))
                 .catch((err) => console.error("Error al obtener la temperatura del CPU:", err));
 
             // Obtener uso de RAM
