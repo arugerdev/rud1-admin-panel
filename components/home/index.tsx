@@ -92,12 +92,12 @@ export default function HomePage() {
                     }}><b>Puerta de enlace:</b> {config.networkConfig.gateway}
                     </div>
                     <div className="p-0 pl-4 m-0 cursor-pointer hover:underline hover:text-[#333]" onClick={() => {
-                        copyToClipboard(config.networkConfig.dns.join(', '));
+                        copyToClipboard(config.networkConfig.dns);
                         toast({
                             title: "Puerta de enlace copiado correctamente",
-                            description: config.networkConfig.dns.join(', '),
+                            description: config.networkConfig.dns,
                         })
-                    }}><b>DNS:</b> {config.networkConfig.dns.join(', ')}
+                    }}><b>DNS:</b> {config.networkConfig.dns}
                     </div>
                     <section className="flex flex-col gap-0 mt-2">
                         {config.networkConfig.interfaces.map((int: any, i: number) => {
