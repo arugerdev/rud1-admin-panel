@@ -3,10 +3,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
-import { Button } from "@/components/ui/button";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,33 +23,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
 
-  const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const key = urlParams.get("key");
-      const device = urlParams.get("device");
-
-      if (!key) {
-        router.push("/unauthorized"); // Redirigir si no hay clave
-        return;
-      }
-
-      const res = await fetch(`/api/auth?key=${key}&device=${device}`);
-      const data = await res.json();
-      console.log(data);
-      if (data.success) {
-        setIsAuthenticated(true);
-      } else {
-        router.push("/unauthorized"); // Redirigir si la clave es inválida
-      }
-    };
-
-    checkAuth();
-  }, [router]);
-
 
   return (
     <html lang="en">
@@ -60,7 +30,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Toaster />
-        {(!isAuthenticated ? null : children)}
+        {children}
         <footer className="absolute bottom-0 w-full text-center text-xs p-2">
           <a href="https://dashboard.rud1.es">www.rud1.es</a>
         </footer>

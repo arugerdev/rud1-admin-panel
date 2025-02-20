@@ -5,6 +5,7 @@ import RUD1DEVICE from '@/public/images/rud1.png'
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import unsecuredCopyToClipboard from '@/app/utils/unsecuredCopy'
+import { Button } from "../ui/button";
 const copyToClipboard = (content: any) => {
     if (window.isSecureContext && navigator.clipboard) {
         navigator.clipboard.writeText(content);
@@ -17,6 +18,7 @@ export default function HomePage() {
     const [config, setConfig] = useState<any>(null);
     const [time, setTime] = useState<any>('');
     const [uptime, setUptime] = useState<any>('');
+    const [tailscaleConnectURL, setTailscaleConnectURL] = useState<any>('');
     const [tailscaleStatus, setTailscaleStatus] = useState('unknow')
     const { toast } = useToast()
 
@@ -41,6 +43,15 @@ export default function HomePage() {
             .catch((err) => { console.error("Error ejecutando el commando:", err) });
         // }, 1000)
     }, []);
+
+
+    const connectToTailscale = () => {
+        fetch("/api/execute?command=tailscale up&tailscaleJoin=true")
+            .then((res) => res.json())
+            .then((data) => { setTailscaleConnectURL(data.url) })
+            .catch((err) => { console.error("Error ejecutando el commando:", err) });
+    }
+
 
     if (!config) return <p>Cargando...</p>;
     return (
@@ -112,7 +123,7 @@ export default function HomePage() {
                         <div className="flex flex-row gap-2 items-center justify-center"><span className="w-4 h-4 rounded-full bg-[#555]" /> Desconocido</div>
                     }
                     {tailscaleStatus === 'active' &&
-                        <div className="flex flex-row gap-2 items-center justify-center"><span className="w-4 h-4 rounded-full bg-[#1A1]" /> Activado</div>
+                        <div className="flex flex-row gap-2 items-center justify-center"><span className="w-4 h-4 rounded-full bg-[#1A1]" /> Activado y conectado</div>
                     }
                     {tailscaleStatus === 'desactive' &&
                         <div className="flex flex-row gap-2 items-center justify-center"><span className="w-4 h-4 rounded-full bg-[#888]" /> Desactivado</div>
@@ -135,6 +146,12 @@ export default function HomePage() {
                             description: config.tailscale.website,
                         })
                     }}><b>Dominio:</b> {config.tailscale.website}
+                    </div>
+                    <div className="flex flex-col gap-2 pt-4">
+                        <Button onClick={connectToTailscale} disabled={tailscaleStatus === 'active'}>Conectar a Tailscale</Button>
+                        {(tailscaleConnectURL && tailscaleConnectURL != '') &&
+                            <a href={tailscaleConnectURL} target="_blank">Haz clic aqui para conectar: {tailscaleConnectURL}</a>
+                        }
                     </div>
                 </section>
             </section>
