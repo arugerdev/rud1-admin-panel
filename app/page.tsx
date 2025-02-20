@@ -1,5 +1,6 @@
 "use client"
 
+import ActionsPage from "@/components/actions";
 import ConfigPage from "@/components/config";
 import HomePage from "@/components/home";
 import { Navbar } from "@/components/navbar";
@@ -16,7 +17,7 @@ export default function Home() {
         {(page === 'services') && <h1>Panel de servicios</h1>}
         {(page === 'details') && <h1>Detalles</h1>}
         {(page === 'help') && <h1>Ayuda</h1>}
-        {(page === 'actions') && <h1>Acciones</h1>}
+        {(page === 'actions') && <ActionsPage/>}
       </main>
 
     </div>
