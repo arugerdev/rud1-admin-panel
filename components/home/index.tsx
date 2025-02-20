@@ -148,7 +148,7 @@ export default function HomePage() {
                     }}><b>Dominio:</b> {config.tailscale.website}
                     </div>
                     <div className="flex flex-col gap-2 pt-4">
-                        <Button onClick={connectToTailscale} disabled={tailscaleStatus === 'active'}>Conectar a Tailscale</Button>
+                        <Button onClick={connectToTailscale} disabled={tailscaleStatus === 'active' || (tailscaleConnectURL && tailscaleConnectURL == '')}>Conectar a Tailscale</Button>
                         {(tailscaleConnectURL && tailscaleConnectURL != '') &&
                             <a href={tailscaleConnectURL} target="_blank">Haz clic aqui para conectar: {tailscaleConnectURL}</a>
                         }
