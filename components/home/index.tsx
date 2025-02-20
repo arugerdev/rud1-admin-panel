@@ -46,7 +46,7 @@ export default function HomePage() {
 
 
     const connectToTailscale = () => {
-        fetch("/api/execute?command=tailscale up&tailscaleJoin=true")
+        fetch("/api/execute?command=sudo tailscale up&tailscaleJoin=true")
             .then((res) => res.json())
             .then((data) => { setTailscaleConnectURL(data.url) })
             .catch((err) => { console.error("Error ejecutando el commando:", err) });
