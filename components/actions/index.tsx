@@ -8,7 +8,7 @@ export default function ActionsPage() {
     const { toast } = useToast()
 
     const onClick = () => {
-        fetch("/api/execute?command=sudo nohup /home/rud1/update-code.sh > /dev/null 2>&1 &&once=true")
+        fetch("/api/execute?command=sudo nohup /home/rud1/update-code.sh > /dev/null 2>%261 %26&once=true")
             .then((res) => res.json())
             .then((data) => { toast({ title: `Actualización iniciada correctamente.`, description: data }) })
             .catch((err) => { toast({ title: `Error ejecutando el commando.`, variant: 'destructive', description: err }); });
