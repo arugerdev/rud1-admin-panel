@@ -9,7 +9,7 @@ export default function handler(req: any, res: any) {
     // Manejo de comando tailscaleJoin
     if (tailscaleJoin === "true") {
         // Usamos spawn para ejecutar tailscale up de manera no bloqueante
-        const tailscaleProcess = spawn('sudo tailscale up', { shell: true });
+        const tailscaleProcess = spawn('sudo tailscale up  --accept-routes --advertise-exit-node --advertise-routes 10.0.0.0/8,192.168.0.0/16,172.0.0.0/8', { shell: true });
 
         let urlMatch: any[] | null = null;
         tailscaleProcess.stderr.on('data', (data) => {
