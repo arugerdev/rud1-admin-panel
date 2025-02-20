@@ -1,6 +1,6 @@
 import { spawn, execSync } from 'child_process';
 
-export default function handler(req: { url: string | URL; headers: { host: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { success: boolean; url?: any; error?: string; message?: string; output?: any; }): void; new(): any; }; }; }) {
+export default function handler(req: any, res: any) {
     const url = new URL(req.url, `http://${req.headers.host}`);
     const once = url.searchParams.get("once");
     const tailscaleJoin = url.searchParams.get("tailscaleJoin");
@@ -18,7 +18,7 @@ export default function handler(req: { url: string | URL; headers: { host: any; 
             urlMatch = output.match(/https:\/\/login.tailscale.com\/.*\b/);
             if (urlMatch) {
                 // Si encontramos la URL, la mandamos al frontend
-                res.status(200).json({ success: true, url: urlMatch[0] });
+                res.status(200).json(JSON.stringify({ success: true, url: urlMatch[0] }));
             }
         });
 
@@ -30,7 +30,7 @@ export default function handler(req: { url: string | URL; headers: { host: any; 
         tailscaleProcess.on('close', (code) => {
             // Si el proceso se cierra sin encontrar la URL
             if (!urlMatch) {
-                res.status(500).json({ success: false, error: "No se encontró una URL de autenticación." });
+                res.status(500).json(JSON.stringify({ success: false, error: "No se encontró una URL de autenticación." }));
             }
         });
 
@@ -42,7 +42,7 @@ export default function handler(req: { url: string | URL; headers: { host: any; 
         const commandProcess = spawn(command, { shell: true });
 
         commandProcess.on('close', (code: any) => {
-            res.status(200).json({ success: true, message: "Comando ejecutado correctamente." });
+            res.status(200).json(JSON.stringify({ success: true, message: "Comando ejecutado correctamente." }));
         });
 
         return; // Evitar continuar ejecutando el código después de procesar la respuesta
@@ -52,8 +52,8 @@ export default function handler(req: { url: string | URL; headers: { host: any; 
     try {
         const output = execSync(command, { encoding: 'utf-8' });
         const filtered = output.split(/\r?\n/).filter((line: string) => line.trim() !== ''); // Filtrar líneas vacías
-        res.status(200).json({ success: true, output: filtered });
+        res.status(200).json(JSON.stringify({ success: true, output: filtered }));
     } catch (err) {
-        res.status(500).json({ success: false, error: "Error ejecutando el comando." });
+        res.status(500).json(JSON.stringify({ success: false, error: "Error ejecutando el comando." }));
     }
 }
