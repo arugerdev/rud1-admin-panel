@@ -27,21 +27,20 @@ export default function HomePage() {
             .then((res) => res.json())
             .then((data) => setConfig(data))
             .catch((err) => console.error("Error cargando la configuración:", err));
-        // setInterval(() => {
-        // fetch("/api/execute?command=dir")
-        fetch("/api/execute?command=tailscale status")
-            .then((res) => res.json())
-            .then((data) => { (data.toString().includes('offers exit node') ? setTailscaleStatus('active') : setTailscaleStatus('desactive')) })
-            .catch((err) => { console.error("Error ejecutando el commando:", err); setTailscaleStatus('error') });
-        fetch("/api/execute?command=uptime | awk '{print $1}' ")
-            .then((res) => res.json())
-            .then((data) => { setTime(JSON.parse(data)[0]) })
-            .catch((err) => { console.error("Error ejecutando el commando:", err) });
-        fetch("/api/execute?command=uptime | awk '{print $3, $4, $5}' ")
-            .then((res) => res.json())
-            .then((data) => { setUptime(JSON.parse(data)[0]) })
-            .catch((err) => { console.error("Error ejecutando el commando:", err) });
-        // }, 1000)
+        setInterval(() => {
+            fetch("/api/execute?command=tailscale status")
+                .then((res) => res.json())
+                .then((data) => { (data.toString().includes('offers exit node') ? setTailscaleStatus('active') : setTailscaleStatus('desactive')) })
+                .catch((err) => { console.error("Error ejecutando el commando:", err); setTailscaleStatus('error') });
+            fetch("/api/execute?command=uptime | awk '{print $1}' ")
+                .then((res) => res.json())
+                .then((data) => { setTime(JSON.parse(data)[0]) })
+                .catch((err) => { console.error("Error ejecutando el commando:", err) });
+            fetch("/api/execute?command=uptime | awk '{print $3, $4, $5}' ")
+                .then((res) => res.json())
+                .then((data) => { setUptime(JSON.parse(data)[0]) })
+                .catch((err) => { console.error("Error ejecutando el commando:", err) });
+        }, 1000)
     }, []);
 
 

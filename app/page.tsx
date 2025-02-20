@@ -2,6 +2,7 @@
 
 import ActionsPage from "@/components/actions";
 import ConfigPage from "@/components/config";
+import DetailsPage from "@/components/details";
 import HomePage from "@/components/home";
 import { Navbar } from "@/components/navbar";
 import { useState } from "react";
@@ -15,9 +16,9 @@ export default function Home() {
         {(page === 'general') && <HomePage />}
         {(page === 'config') && <ConfigPage />}
         {(page === 'services') && <h1>Panel de servicios</h1>}
-        {(page === 'details') && <h1>Detalles</h1>}
+        {(page === 'details') && <DetailsPage />}
         {(page === 'help') && <h1>Ayuda</h1>}
-        {(page === 'actions') && <ActionsPage/>}
+        {(page === 'actions') && <ActionsPage />}
       </main>
 
     </div>
