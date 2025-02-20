@@ -24,6 +24,8 @@ type FormValues = {
             name: string;
             type: string;
             method: string;
+            ssid?: string;
+            password?: string;
         }[];
         ipAddress: string;
         gateway: string;
@@ -51,7 +53,7 @@ export default function ConfigPage() {
                 dns: ["", ""],
                 interfaces: [
                     { name: "eth0", type: "Ethernet", method: "dhcp" },
-                    { name: "wlan0", type: "Wi-Fi", method: "dhcp" },
+                    { name: "wlan0", type: "Wi-Fi", method: "dhcp", ssid: '', password: '' },
                 ],
             },
             simConfig: {
@@ -219,8 +221,34 @@ export default function ConfigPage() {
                                         />
                                     </section>
                                 ))}
-
                             </section>
+
+                            <h1 className="font-extrabold text-xl">Configuración Wifi</h1>
+
+                            <FormField
+                                control={form.control}
+                                name="networkConfig.interfaces.1.ssid"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>SSID:</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="SSID" {...field} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="networkConfig.interfaces.1.password"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Contraseña:</FormLabel>
+                                        <FormControl>
+                                            <Input type="password" placeholder="Contraseña" {...field} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
                         </section>
                     </section>
                     <section className="flex flex-row justify-end w-full pt-4">
