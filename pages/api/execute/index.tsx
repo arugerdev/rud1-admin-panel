@@ -1,46 +1,59 @@
+import { spawn, execSync } from 'child_process';
 
-// import { execSync } from 'child_process';  // replace ^ if using ES modules
-export default function handler(req: { url: string | URL; headers: { host: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: string): void; new(): any; }; }; }) {
+export default function handler(req: { url: string | URL; headers: { host: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { success: boolean; url?: any; error?: string; message?: string; output?: any; }): void; new(): any; }; }; }) {
     const url = new URL(req.url, `http://${req.headers.host}`);
     const once = url.searchParams.get("once");
     const tailscaleJoin = url.searchParams.get("tailscaleJoin");
-    const command = url.searchParams.get("command");
+    const command = url.searchParams.get("command") ?? "echo 'No se ha especificado un comando.'";
 
+    // Manejo de comando tailscaleJoin
     if (tailscaleJoin === "true") {
-        const { exec } = require("child_process");
-        exec(command, (error: any, stdout: any, stderr: any) => {
-            if (error) {
-                return res.status(500).json(JSON.stringify({ success: false, error: stderr }));
-            }
+        // Usamos spawn para ejecutar tailscale up de manera no bloqueante
+        const tailscaleProcess = spawn('sudo tailscale up');
 
-            // Buscar la URL en la salida del comando
-            const urlMatch = stdout.match(/https:\/\/login.tailscale.com\/.*\b/);
+        let urlMatch: any[] | null = null;
+        tailscaleProcess.stdout.on('data', (data) => {
+            // Buscar la URL en la salida
+            const output = data.toString();
+            urlMatch = output.match(/https:\/\/login.tailscale.com\/.*\b/);
             if (urlMatch) {
-                return res.status(200).json(JSON.stringify({ success: true, url: urlMatch[0] }));
+                // Si encontramos la URL, la mandamos al frontend
+                res.status(200).json({ success: true, url: urlMatch[0] });
             }
-
-            res.status(500).json(JSON.stringify({ success: false, error: "No se encontró una URL de autenticación." }));
         });
-        return res.status(200)
+
+        tailscaleProcess.stderr.on('data', (data) => {
+            // Capturar cualquier error
+            console.error(`stderr: ${data}`);
+        });
+
+        tailscaleProcess.on('close', (code) => {
+            // Si el proceso se cierra sin encontrar la URL
+            if (!urlMatch) {
+                res.status(500).json({ success: false, error: "No se encontró una URL de autenticación." });
+            }
+        });
+
+        return; // Terminamos el procesamiento aquí para no bloquear el flujo
     }
 
+    // Manejo del parámetro once
     if (once === "true") {
-        const { exec } = require("child_process");
-        exec(command)
-        return res.status(200)
-    }
+        const commandProcess = spawn(command, { shell: true });
 
-    const execSync = require('child_process').execSync;
-    try {
-        const output = execSync(command, { encoding: 'utf-8' });  // the default is 'buffer'
-        const splitted = output.split(/\r?\n/);
-        const filtered = splitted.filter((e: string) => {
-            return e !== '';
+        commandProcess.on('close', (code: any) => {
+            res.status(200).json({ success: true, message: "Comando ejecutado correctamente." });
         });
 
-        res.status(200).json(JSON.stringify(filtered))
+        return; // Evitar continuar ejecutando el código después de procesar la respuesta
     }
-    catch {
-        res.status(500)
+
+    // Ejecutar el comando y devolver salida con execSync
+    try {
+        const output = execSync(command, { encoding: 'utf-8' });
+        const filtered = output.split(/\r?\n/).filter((line: string) => line.trim() !== ''); // Filtrar líneas vacías
+        res.status(200).json({ success: true, output: filtered });
+    } catch (err) {
+        res.status(500).json({ success: false, error: "Error ejecutando el comando." });
     }
 }
