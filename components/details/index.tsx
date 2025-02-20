@@ -19,19 +19,19 @@ export default function DetailsPage() {
             // Obtener uso de RAM
             fetch("/api/execute?command=free -h | grep Mem | awk '{print $3}'")
                 .then((res) => res.json())
-                .then((data) => setRamUsage((!data.success ? data.error : data)))
+                .then((data) => setRamUsage((!data.success ? data.error : data.output[0])))
                 .catch((err) => console.error("Error al obtener el uso de RAM:", err));
 
             // Obtener uso de disco
             fetch("/api/execute?command=df -h / | grep / | awk '{print $5}'")
                 .then((res) => res.json())
-                .then((data) => setDiskUsage((!data.success ? data.error : data)))
+                .then((data) => setDiskUsage((!data.success ? data.error : data.output[0])))
                 .catch((err) => console.error("Error al obtener el uso de disco:", err));
 
             // Obtener información general del sistema
             fetch("/api/execute?command=hostnamectl")
                 .then((res) => res.json())
-                .then((data) => setSystemInfo((!data.success ? data.error : data)))
+                .then((data) => setSystemInfo((!data.success ? data.error : data.output[0])))
                 .catch((err) => console.error("Error al obtener la información del sistema:", err));
         };
 
