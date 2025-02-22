@@ -30,7 +30,7 @@ export default function HomePage() {
         setInterval(() => {
             fetch("/api/execute?command=tailscale status")
                 .then((res) => res.json())
-                .then((data) => { (data.toString().includes('offers exit node') ? setTailscaleStatus('active') : setTailscaleStatus('desactive')) })
+                .then((data) => { (data.toString().includes('100.') ? setTailscaleStatus('active') : setTailscaleStatus('desactive')) })
                 .catch((err) => { console.error("Error ejecutando el commando:", err); setTailscaleStatus('error') });
             fetch("/api/execute?command=uptime | awk '{print $1}' ")
                 .then((res) => res.json())
@@ -45,7 +45,7 @@ export default function HomePage() {
 
 
     const connectToTailscale = () => {
-        fetch(`/api/execute?command=sudo tailscale up --hostname ${config.deviceName} --accept-routes --advertise-exit-node --advertise-routes 192.168.0.0/16,172.0.0.0/8,10.0.0.0/8&tailscaleJoin=true`)
+        fetch(`/api/execute?tailscaleJoin=true`)
             .then((res) => res.json())
             .then((data) => { setTailscaleConnectURL(data.url) })
             .catch((err) => { console.error("Error ejecutando el commando:", err) });
@@ -140,6 +140,7 @@ export default function HomePage() {
                     </div>
                     <div className="flex flex-col gap-2 pt-4">
                         <Button onClick={connectToTailscale} disabled={tailscaleStatus === 'active' || (tailscaleConnectURL && tailscaleConnectURL == '')}>Conectar a Tailscale</Button>
+                        {tailscaleConnectURL}
                         {(tailscaleConnectURL && tailscaleConnectURL != '') &&
                             <a href={tailscaleConnectURL} target="_blank">Haz clic aqui para conectar: {tailscaleConnectURL}</a>
                         }
