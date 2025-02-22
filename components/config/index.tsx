@@ -35,7 +35,6 @@ type FormValues = {
         pin: string;
     };
     tailscale: {
-        website: string;
         public_ip: string;
     };
 };
@@ -60,7 +59,6 @@ export default function ConfigPage() {
                 pin: "",
             },
             tailscale: {
-                website: "",
                 public_ip: ""
             }
         }
@@ -127,7 +125,7 @@ export default function ConfigPage() {
                         <section className="flex flex-col w-1/2 gap-4">
                             <section className="flex flex-col gap-0 p-0 m-0">
                                 <h1 className="text-xl font-bold">{config.deviceName}</h1>
-                                <h2 className="text-sm">{config.tailscale.website}</h2>
+                                <h2 className="text-sm">{config.tailscale.public_ip}</h2>
                             </section>
                             <Alert variant="destructive" >
                                 <AlertTitle>Espera!</AlertTitle>

@@ -57,7 +57,7 @@ export default function HomePage() {
         <section className="flex flex-col md:flex-row items-center md:items-start justify-center md:justify-start px-8 md:px-0 w-full gap-16 font-[family-name:var(--font-geist-sans)]">
             <section className="flex flex-col gap-0 items-center h-full w-full">
                 <h1 className="text-xl font-bold p-0 m-0">{config?.deviceName}</h1>
-                <h2 className="text-sm font-normal p-0 m-0">{config?.tailscale.website}</h2>
+                <h2 className="text-sm font-normal p-0 m-0">{config?.tailscale.public_ip}</h2>
                 <Image src={RUD1DEVICE} alt="" className="px-8 max-w-[700px] w-full" />
             </section>
             <section className="flex flex-col gap-4 items-start h-full w-full">
@@ -137,14 +137,6 @@ export default function HomePage() {
                             description: config.tailscale.public_ip,
                         })
                     }}><b>IP Publica:</b> {config.tailscale.public_ip}
-                    </div>
-                    <div className="p-0 pl-4 m-0 cursor-pointer hover:underline hover:text-[#333]" onClick={() => {
-                        copyToClipboard(config.tailscale.website);
-                        toast({
-                            title: "Dominio copiado correctamente",
-                            description: config.tailscale.website,
-                        })
-                    }}><b>Dominio:</b> {config.tailscale.website}
                     </div>
                     <div className="flex flex-col gap-2 pt-4">
                         <Button onClick={connectToTailscale} disabled={tailscaleStatus === 'active' || (tailscaleConnectURL && tailscaleConnectURL == '')}>Conectar a Tailscale</Button>
