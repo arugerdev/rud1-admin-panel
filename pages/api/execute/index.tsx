@@ -30,7 +30,7 @@ export default function handler(req: any, res: any) {
         tailscaleProcess.on('close', (code) => {
             // Si el proceso se cierra sin encontrar la URL
             if (!urlMatch) {
-                res.status(500).json(JSON.stringify({ success: false, error: "No se encontró una URL de autenticación.", message: }));
+                res.status(500).json(JSON.stringify({ success: false, error: "No se encontró una URL de autenticación." }));
             }
         });
 
