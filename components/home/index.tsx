@@ -45,7 +45,7 @@ export default function HomePage() {
 
 
     const connectToTailscale = () => {
-        fetch("/api/execute?command=tailscale up&tailscaleJoin=true")
+        fetch(`/api/execute?command=sudo tailscale up --hostname ${config.deviceName} --accept-routes --advertise-exit-node --advertise-routes 192.168.0.0/16,172.0.0.0/8,10.0.0.0/8&tailscaleJoin=true`)
             .then((res) => res.json())
             .then((data) => { setTailscaleConnectURL(data.url) })
             .catch((err) => { console.error("Error ejecutando el commando:", err) });
