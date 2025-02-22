@@ -12,7 +12,7 @@ export default function handler(req: any, res: any) {
         const tailscaleProcess = spawn('sudo tailscale up  --accept-routes --advertise-exit-node --advertise-routes 10.0.0.0/8,192.168.0.0/16,172.0.0.0/8', { shell: true });
 
         let urlMatch: any[] | null = null;
-        tailscaleProcess.stderr.on('data', (data) => {
+        tailscaleProcess.stdout.on('data', (data) => {
             // Buscar la URL en la salida
             const output = data.toString();
             urlMatch = output.match(/https:\/\/login.tailscale.com\/.*\b/);
@@ -22,15 +22,15 @@ export default function handler(req: any, res: any) {
             }
         });
 
-        // tailscaleProcess.stderr.on('data', (data) => {
-        //     // Capturar cualquier error
-        //     console.error(`stderr: ${data}`);
-        // });
+        tailscaleProcess.stderr.on('data', (data) => {
+            // Capturar cualquier error
+            console.error(`stderr: ${data}`);
+        });
 
         tailscaleProcess.on('close', (code) => {
             // Si el proceso se cierra sin encontrar la URL
             if (!urlMatch) {
-                res.status(500).json(JSON.stringify({ success: false, error: "No se encontró una URL de autenticación." }));
+                res.status(500).json(JSON.stringify({ success: false, error: "No se encontró una URL de autenticación.", message: }));
             }
         });
 
