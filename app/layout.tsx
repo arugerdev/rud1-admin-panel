@@ -31,9 +31,9 @@ export default function RootLayout({
       >
         <Toaster />
         {children}
-        <footer className="absolute bottom-0 w-full text-center text-xs p-2">
-          <a href="https://dashboard.rud1.es" className="w-full">www.rud1.es</a>
-          <small>Version 1.0b 2025 - Rud1</small>
+        <footer className="absolute bottom-0 w-full text-center text-xs p-2 flex flex-row gap-8">
+          <a href="https://dashboard.rud1.es" className="w-full text-primary">www.rud1.es</a>
+          <small>Version 1.1b 2025 - Rud1</small>
         </footer>
       </body>
     </html>

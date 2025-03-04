@@ -32,7 +32,7 @@ export function Navbar({ setPage }: Readonly<{ setPage: React.Dispatch<React.Set
                     </button>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                    <button disabled className="text-[#AAA]" onClick={() => setPage('services')}>
+                    <button onClick={() => setPage('services')}>
                         <NavigationMenuLink className={`md:text-normal text-sm ${navigationMenuTriggerStyle()}`}>
                             Servicios
                         </NavigationMenuLink>
