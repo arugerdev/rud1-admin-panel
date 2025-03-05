@@ -98,6 +98,11 @@ export default function ConfigPage() {
             if (res.ok) {
                 toast({ title: "Configuración guardada con éxito" });
 
+                fetch(`/api/execute?command=sudo hostnamectl set-hostname ${config?.deviceName.toLocaleLowerCase().split(' ').join('-').toString()}`)
+                    .then((res) => res.json())
+                    .then((data) => { toast({ title: `Hostname cambiado`, description: data }) })
+                    .catch((err) => { toast({ title: `Error ejecutando el commando.`, variant: 'destructive', description: err }); });
+
                 fetch("/api/execute?command=sudo python3 /etc/applyNetplan.py")
                     .then((res) => res.json())
                     .then((data) => { toast({ title: `Netplan Aplicado`, description: data }) })
