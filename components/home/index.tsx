@@ -44,14 +44,14 @@ export default function HomePage() {
     }, []);
 
 
-    const connectToTailscale = () => {
+    const connectToTailscale = async () => {
         fetch(`/api/execute?tailscaleJoin=true`)
             .then((res) => res.json())
-            .then((data) => { setTailscaleConnectURL(data.url); console.log(data.url) })
+            .then((data) => { setTailscaleConnectURL(JSON.parse(data).url); console.log(JSON.parse(data).url) })
             .catch((err) => { console.error("Error ejecutando el commando:", err) });
 
     }
-    const disconnectTailscale = () => {
+    const disconnectTailscale = async () => {
         fetch(`/api/execute?command=tailscale logout`)
             .then((res) => res.json())
             .then((data) => toast({ title: `Desconexión realizada correctamente.`, description: data }))
