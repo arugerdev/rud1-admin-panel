@@ -31,7 +31,7 @@ export default function DetailsPage() {
             // Obtener información general del sistema
             fetch("/api/execute?command=hostnamectl -j")
                 .then((res) => res.json())
-                .then((data) => setSystemInfo((!JSON.parse(data).success ? JSON.parse(data).error : JSON.parse(data))))
+                .then((data) => setSystemInfo((!JSON.parse(data).success ? JSON.parse(data).error : JSON.parse(data).output[0])))
                 .catch((err) => console.error("Error al obtener la información del sistema:", err));
         };
 
@@ -51,7 +51,6 @@ export default function DetailsPage() {
                         <p><b>Nombre del Host:</b> {systemInfo.Hostname}</p>
                         <p><b>Operativo:</b> {systemInfo.OperatingSystemPrettyName}</p>
                         <p><b>Versión del Kernel:</b> {systemInfo.KernelVersion}</p>
-                        <p>{JSON.stringify(systemInfo)}</p>
                     </section>
 
                 )}
