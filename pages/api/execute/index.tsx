@@ -1,15 +1,42 @@
 import { spawn, execSync } from 'child_process';
+import fs from "fs/promises";
+import crypto from "crypto";
 
-export default function handler(req: any, res: any) {
+
+async function getUniqueIdentifier() {
+    try {
+        // Obtener dirección MAC de eth0 (si no hay, prueba wlan0)
+        let mac = execSync("cat /sys/class/net/eth0/address || cat /sys/class/net/wlan0/address", { encoding: 'utf-8' }).trim();
+        if (!mac) {
+            throw new Error("No se encontró MAC Address");
+        }
+        // Convertir la MAC en un hash corto (más seguro y único)
+        return crypto.createHash("md5").update(mac).digest("hex").slice(0, 6).toUpperCase();
+    } catch (err) {
+        console.error("Error obteniendo identificador único:", err);
+        return "UNKNOWN";
+    }
+}
+
+export default async function handler(req: any, res: any) {
     const url = new URL(req.url, `http://${req.headers.host}`);
     const once = url.searchParams.get("once");
     const tailscaleJoin = url.searchParams.get("tailscaleJoin");
     const command = url.searchParams.get("command") ?? "echo 'No se ha especificado un comando.'";
 
+
     // Manejo de comando tailscaleJoin
     if (tailscaleJoin === "true") {
+        const CONFIG_PATH = "/etc/config.json";
+        const filePath = process.cwd() + CONFIG_PATH;
+
+        const data = await fs.readFile(filePath, "utf-8");
+        const config = JSON.parse(data);
+
+        const uniqueId = await getUniqueIdentifier();
+        const hostname = `RUD1-${config.deviceName}-${uniqueId}`;
         // Usamos spawn para ejecutar tailscale up de manera no bloqueante
-        const tailscaleProcess = spawn('tailscale up  --accept-routes --advertise-exit-node --advertise-routes 10.0.0.0/8,192.168.0.0/16,172.0.0.0/8', { shell: true });
+        const tailscaleProcess = spawn(`tailscale up --hostname "${hostname}" --accept-routes --advertise-exit-node --advertise-routes 10.0.0.0/8,192.168.0.0/16,172.0.0.0/8`, { shell: true });
 
         let urlMatch: any[] | null = null;
         tailscaleProcess.stderr.on('data', (data) => {
