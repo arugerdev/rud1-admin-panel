@@ -33,7 +33,7 @@ export default function RootLayout({
         {children}
         <footer className="absolute bottom-0 w-full text-center text-xs p-2 flex flex-row gap-8">
           <a href="https://dashboard.rud1.es" className="w-full text-[#55A]">www.rud1.es</a>
-          <small>Version 1.3b 2025 - Rud1</small>
+          <small className="no-wrap">Version 1.4b 2025 - Rud1</small>
         </footer>
       </body>
     </html>
