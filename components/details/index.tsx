@@ -45,14 +45,18 @@ export default function DetailsPage() {
                 <h1 className="text-2xl font-bold">Detalles del Sistema</h1>
 
                 {/* Información general del sistema */}
-                {systemInfo && (
+                {(systemInfo && !JSON.stringify(systemInfo).includes("Error")) && (
                     <section className="flex flex-col gap-4">
                         <h2 className="text-xl font-bold">Información del Sistema</h2>
-                        <div><b>Nombre del Host:</b> {systemInfo.hostname}</div>
-                        <div><b>Operativo:</b> {systemInfo.operating_system}</div>
-                        <div><b>Versión del Kernel:</b> {systemInfo.kernel}</div>
+                        <p><b>Nombre del Host:</b> {systemInfo.hostname}</p>
+                        <p><b>Operativo:</b> {systemInfo.operating_system}</p>
+                        <p><b>Versión del Kernel:</b> {systemInfo.kernel}</p>
+                        <p>{JSON.stringify(systemInfo)}</p>
                     </section>
+
                 )}
+
+
 
                 {/* Temperatura del CPU */}
                 <section className="flex flex-col gap-4">
