@@ -50,6 +50,11 @@ export default function HomePage() {
             .then((data) => { setTailscaleConnectURL(data.url) })
             .catch((err) => { console.error("Error ejecutando el commando:", err) });
     }
+    const disconnectTailscale = () => {
+        fetch(`/api/execute?command=tailscale logout`)
+            .then((res) => res.json())
+            .catch((err) => { console.error("Error ejecutando el commando:", err) });
+    }
 
 
     if (!config) return <p>Cargando...</p>;
@@ -140,10 +145,10 @@ export default function HomePage() {
                     </div>
                     <div className="flex flex-col gap-2 pt-4">
                         <Button onClick={connectToTailscale} disabled={tailscaleStatus === 'active' || (tailscaleConnectURL && tailscaleConnectURL == '')}>Conectar a Tailscale</Button>
-                        {tailscaleConnectURL}
                         {(tailscaleConnectURL && tailscaleConnectURL != '') &&
                             <a href={tailscaleConnectURL} target="_blank">Haz clic aqui para conectar: {tailscaleConnectURL}</a>
                         }
+                        <Button onClick={disconnectTailscale} disabled={tailscaleStatus !== 'active'}>Desconectar cuenta Tailscale</Button>
                     </div>
                 </section>
             </section>
