@@ -36,7 +36,7 @@ export default async function handler(req: any, res: any) {
         const uniqueId = await getUniqueIdentifier();
         const hostname = `RUD1-${config.deviceName}-${uniqueId}`;
         // Usamos spawn para ejecutar tailscale up de manera no bloqueante
-        const tailscaleProcess = spawn(`tailscale up --hostname "${hostname}" --accept-routes --advertise-exit-node --advertise-routes 10.0.0.0/8,192.168.0.0/16,172.0.0.0/8`, { shell: true });
+        const tailscaleProcess = spawn(`tailscale up --hostname "${hostname}" --force-reauth --exit-node-allow-lan-access --accept-routes --advertise-exit-node --advertise-routes 10.0.0.0/8,192.168.0.0/16,172.0.0.0/8`, { shell: true });
 
         let urlMatch: any[] | null = null;
         tailscaleProcess.stderr.on('data', (data) => {
