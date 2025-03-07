@@ -29,9 +29,9 @@ export default function DetailsPage() {
                 .catch((err) => console.error("Error al obtener el uso de disco:", err));
 
             // Obtener información general del sistema
-            fetch("/api/execute?command=hostnamectl")
+            fetch("/api/execute?command=hostnamectl -j")
                 .then((res) => res.json())
-                .then((data) => setSystemInfo((!JSON.parse(data).success ? JSON.parse(data).error : JSON.parse(data).output[0])))
+                .then((data) => setSystemInfo((!JSON.parse(data).success ? JSON.parse(data).error : JSON.parse(data))))
                 .catch((err) => console.error("Error al obtener la información del sistema:", err));
         };
 
@@ -48,9 +48,9 @@ export default function DetailsPage() {
                 {(systemInfo && !JSON.stringify(systemInfo).includes("Error")) && (
                     <section className="flex flex-col gap-4">
                         <h2 className="text-xl font-bold">Información del Sistema</h2>
-                        <p><b>Nombre del Host:</b> {systemInfo.hostname}</p>
-                        <p><b>Operativo:</b> {systemInfo.operating_system}</p>
-                        <p><b>Versión del Kernel:</b> {systemInfo.kernel}</p>
+                        <p><b>Nombre del Host:</b> {systemInfo.Hostname}</p>
+                        <p><b>Operativo:</b> {systemInfo.OperatingSystemPrettyName}</p>
+                        <p><b>Versión del Kernel:</b> {systemInfo.KernelVersion}</p>
                         <p>{JSON.stringify(systemInfo)}</p>
                     </section>
 
