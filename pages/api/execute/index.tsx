@@ -1,6 +1,5 @@
 import { spawn, execSync } from 'child_process';
 import fs from "fs/promises";
-import crypto from "crypto";
 
 
 async function getUniqueIdentifier() {
@@ -11,7 +10,15 @@ async function getUniqueIdentifier() {
             throw new Error("No se encontró MAC Address");
         }
         // Convertir la MAC en un hash corto (más seguro y único)
-        return crypto.createHash("md5").update(mac).digest("hex").slice(0, 6).toUpperCase();
+        const encoder = new TextEncoder();
+        const macBytes = encoder.encode(mac);
+        let hash = 0;
+
+        for (let i = 0; i < macBytes.length; i++) {
+            hash = (hash * 31 + macBytes[i]) % 0xFFFFFF; // Generar un número único
+        }
+
+        return hash.toString(16).padStart(6, '0').toUpperCase();
     } catch (err) {
         console.error("Error obteniendo identificador único:", err);
         return "UNKNOWN";
