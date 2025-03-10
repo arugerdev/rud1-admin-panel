@@ -108,10 +108,8 @@ export default function ConfigPage() {
                     .then((data) => {
                         toast({ title: `Netplan Aplicado`, description: data });
 
-                        fetch(`/api/execute?command=sudo reboot now`)
-                            .then((res) => res.json())
-                            .then((data) => { toast({ title: `Reinicio iniciado`, description: data }) })
-                            .catch((err) => { toast({ title: `Error ejecutando el commando.`, variant: 'destructive', description: err }); });
+                        fetch(`/api/execute?command=sudo systemctl restart systemd-networkd`)
+                        fetch(`/api/execute?command=sudo systemctl restart NetworkManager`)
 
                     })
                     .catch((err) => { toast({ title: `Error ejecutando el commando.`, variant: 'destructive', description: err }); });
@@ -130,12 +128,12 @@ export default function ConfigPage() {
     if (!config.deviceName) return <p>Error: no se ha podido cargar la configuración</p>
 
     return (
-        <section className="flex flex-col items-start gap-8 px-16 w-full h-full">
+        <section className="flex flex-col items-start gap-8 px-8 w-full h-full max-w-screen max-h-screen">
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 w-full h-full">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 w-full h-full flex flex-col justify-between pb-8">
 
-                    <section className="flex flex-row gap-12 w-full h-full">
-                        <section className="flex flex-col w-1/2 gap-4">
+                    <section className="flex flex-col md:flex-row gap-12 w-full">
+                        <section className="flex flex-col w-full items-center md:items-start md:w-1/2 gap-4">
                             <section className="flex flex-col gap-0 p-0 m-0">
                                 <h1 className="text-xl font-bold">{config.deviceName}</h1>
                                 <h2 className="text-sm">{config.tailscale.public_ip}</h2>
@@ -209,22 +207,8 @@ export default function ConfigPage() {
 
                             </div>
 
-
-                            <h1 className="font-extrabold text-xl">Configuración de SIM</h1>
-                            <FormField
-                                control={form.control}
-                                name="simConfig.pin"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>PIN de la SIM:</FormLabel>
-                                        <FormControl>
-                                            <Input type="password" placeholder="0000" {...field} />
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
                         </section>
-                        <section className="flex flex-col w-1/2 h-full gap-4">
+                        <section className="flex flex-col w-full items-center md:items-start md:w-1/2 h-full gap-4">
                             {/* Configuración de cada interfaz de red (Solo quiero configurar el tipo de metodo DHCP o ESTATICA) */}
                             <h1 className="font-extrabold text-xl">Interfaces de Red</h1>
                             <section className="flex flex-col gap-2">
@@ -241,7 +225,19 @@ export default function ConfigPage() {
                                     </section>
                                 ))}
                             </section>
-
+                            <h1 className="font-extrabold text-xl">Configuración de SIM</h1>
+                            <FormField
+                                control={form.control}
+                                name="simConfig.pin"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>PIN de la SIM:</FormLabel>
+                                        <FormControl>
+                                            <Input type="password" placeholder="0000" {...field} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
                             <h1 className="font-extrabold text-xl">Configuración Wifi</h1>
 
                             <FormField
@@ -270,7 +266,7 @@ export default function ConfigPage() {
                             />
                         </section>
                     </section>
-                    <section className="flex flex-row justify-end w-full pt-4">
+                    <section className="flex flex-col md:flex-row justify-end w-full mb-12 pt-4">
                         <Button type="submit" size={'lg'} className="text-xl">Guardar</Button>
                     </section>
                 </form>

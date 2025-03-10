@@ -11,7 +11,7 @@ import { useState } from "react";
 export default function Home() {
   const [page, setPage] = useState('general');
   return (
-    <div className="h-full flex flex-col items-start justify-start gap-8 font-[family-name:var(--font-geist-sans)]">
+    <div className="h-full w-full flex flex-col items-start justify-start gap-8 font-[family-name:var(--font-geist-sans)]">
       <Navbar setPage={setPage} />
       <main className="flex flex-col gap-8 items-center h-full w-full">
         {(page === 'general') && <HomePage />}
