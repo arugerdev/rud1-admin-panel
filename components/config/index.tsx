@@ -105,7 +105,15 @@ export default function ConfigPage() {
 
                 fetch("/api/execute?command=sudo python3 /etc/applyNetplan.py")
                     .then((res) => res.json())
-                    .then((data) => { toast({ title: `Netplan Aplicado`, description: data }) })
+                    .then((data) => {
+                        toast({ title: `Netplan Aplicado`, description: data });
+
+                        fetch(`/api/execute?command=sudo reboot now`)
+                            .then((res) => res.json())
+                            .then((data) => { toast({ title: `Reinicio iniciado`, description: data }) })
+                            .catch((err) => { toast({ title: `Error ejecutando el commando.`, variant: 'destructive', description: err }); });
+
+                    })
                     .catch((err) => { toast({ title: `Error ejecutando el commando.`, variant: 'destructive', description: err }); });
 
             } else {
@@ -136,6 +144,8 @@ export default function ConfigPage() {
                                 <AlertTitle>Espera!</AlertTitle>
                                 <AlertDescription>
                                     Antes de cambiar la configuración de red, asegúrate de que los valores son correctos para cada situación. Si no estás seguro, consulta con el administrador de red.
+                                    <br />
+                                    Al guardar y aplicar los cambios para la configuración de red, el dispositivo se reiniciará automáticamente.
                                 </AlertDescription>
                             </Alert>
                             <h1 className="font-extrabold text-xl">Configuración General</h1>

@@ -53,7 +53,7 @@ export default function ActionsPage() {
                 </Alert>
             </section>
             <section className="flex flex-col gap-2 items-start h-full w-full">
-                <Button className=" hover:bg-[#F77] bg-[#F33]" onClick={onFabricRestore}>Formateo de fabrica</Button>
+                <Button disabled className=" hover:bg-[#F77] bg-[#F33]" onClick={onFabricRestore}>Formateo de fabrica</Button>
                 <Alert variant="destructive" className="max-w-2xl" >
                     <AlertTitle><b>Estado de fábrica</b></AlertTitle>
                     <AlertDescription>
