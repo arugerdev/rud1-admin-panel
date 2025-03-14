@@ -2,10 +2,10 @@ import fs from "fs/promises";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const CONFIG_PATH = "/etc/config.json";
-// const CONFIG_PATH = "C:/Users/usuario/Documentos/config.json";
+// const CONFIG_PATH = "C:/etc/config.json";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const filePath = process.cwd() + CONFIG_PATH;
+    const filePath = CONFIG_PATH;
 
     if (req.method === "GET") {
         try {

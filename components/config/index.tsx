@@ -100,16 +100,17 @@ export default function ConfigPage() {
 
                 fetch(`/api/execute?command=sudo hostnamectl set-hostname ${config?.deviceName.toLocaleLowerCase().split(' ').join('-').toString()}`)
                     .then((res) => res.json())
-                    .then((data) => { toast({ title: `Hostname cambiado`, description: data }) })
+                    .then((data) => { })
                     .catch((err) => { toast({ title: `Error ejecutando el commando.`, variant: 'destructive', description: err }); });
 
                 fetch("/api/execute?command=sudo python3 /etc/applyNetplan.py")
                     .then((res) => res.json())
                     .then((data) => {
-                        toast({ title: `Netplan Aplicado`, description: data });
-
-                        fetch(`/api/execute?command=sudo systemctl restart systemd-networkd`)
-                        fetch(`/api/execute?command=sudo systemctl restart NetworkManager`)
+                        fetch(`/api/execute?command=sudo systemctl restart systemd-networkd`).finally(() => {
+                            fetch(`/api/execute?command=sudo systemctl restart NetworkManager`).finally(() => {
+                                toast({ title: `Configuracion Aplicada`, description: data });
+                            })
+                        })
 
                     })
                     .catch((err) => { toast({ title: `Error ejecutando el commando.`, variant: 'destructive', description: err }); });
