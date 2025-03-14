@@ -131,7 +131,7 @@ export default function ConfigPage() {
                     });
 
             } else {
-                toast({ title: "Error al guardar", variant: "destructive" });
+                toast({ title: "Error al guardar", description: res.statusText, variant: "destructive" });
                 setInactive(false);
                 setLoading(false);
             }
