@@ -115,14 +115,11 @@ export default function ConfigPage() {
                 fetch("/api/execute?command=sudo python3 /etc/applyNetplan.py")
                     .then((res) => res.json())
                     .then((data) => {
-                        fetch(`/api/execute?command=sudo systemctl restart systemd-networkd`).finally(() => {
-                            fetch(`/api/execute?command=sudo systemctl restart NetworkManager`).finally(() => {
-                                toast({ title: `Configuracion Aplicada`, description: data });
-                                setInactive(false);
-                                setLoading(false);
-                            })
+                        fetch(`/api/execute?command=sudo systemctl restart NetworkManager`).finally(() => {
+                            toast({ title: `Configuracion Aplicada`, description: data });
+                            setInactive(false);
+                            setLoading(false);
                         })
-
                     })
                     .catch((err) => {
                         toast({ title: `Error ejecutando el commando.`, variant: 'destructive', description: err });
