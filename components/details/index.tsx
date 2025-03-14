@@ -36,7 +36,7 @@ export default function DetailsPage() {
         };
 
         fetchSystemInfo();
-        setInterval(fetchSystemInfo, 1000);  // Actualizar cada 5 segundos
+        setInterval(fetchSystemInfo, 3000);  // Actualizar cada 5 segundos
     }, []);
 
     return (

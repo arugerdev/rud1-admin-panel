@@ -40,7 +40,7 @@ export default function HomePage() {
                 .then((res) => res.json())
                 .then((data) => { setUptime(JSON.parse(data)[0]) })
                 .catch((err) => { console.error("Error ejecutando el commando:", err) });
-        }, 1000)
+        }, 3000)
     }, []);
 
 

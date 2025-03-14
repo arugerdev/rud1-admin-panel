@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import {
     Form,
     FormField,
@@ -16,6 +16,7 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectLabel, SelectItem } from "../ui/select";
+import { Loader } from "lucide-react";
 
 type FormValues = {
     deviceName: string;
@@ -41,6 +42,8 @@ type FormValues = {
 
 export default function ConfigPage() {
     const [config, setConfig] = useState<FormValues | null>(null);
+    const [inactive, setInactive] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
 
     const { toast } = useToast();
     const form = useForm<FormValues>({
@@ -88,6 +91,8 @@ export default function ConfigPage() {
 
 
     const onSubmit = async (values: any) => {
+        setInactive(true);
+        setLoading(true);
         try {
             const res = await fetch("/api/config", {
                 method: "POST",
@@ -101,7 +106,11 @@ export default function ConfigPage() {
                 fetch(`/api/execute?command=sudo hostnamectl set-hostname ${config?.deviceName.toLocaleLowerCase().split(' ').join('-').toString()}`)
                     .then((res) => res.json())
                     .then((data) => { })
-                    .catch((err) => { toast({ title: `Error ejecutando el commando.`, variant: 'destructive', description: err }); });
+                    .catch((err) => {
+                        toast({ title: `Error ejecutando el commando.`, variant: 'destructive', description: err });
+                        setInactive(false);
+                        setLoading(false);
+                    });
 
                 fetch("/api/execute?command=sudo python3 /etc/applyNetplan.py")
                     .then((res) => res.json())
@@ -109,18 +118,28 @@ export default function ConfigPage() {
                         fetch(`/api/execute?command=sudo systemctl restart systemd-networkd`).finally(() => {
                             fetch(`/api/execute?command=sudo systemctl restart NetworkManager`).finally(() => {
                                 toast({ title: `Configuracion Aplicada`, description: data });
+                                setInactive(false);
+                                setLoading(false);
                             })
                         })
 
                     })
-                    .catch((err) => { toast({ title: `Error ejecutando el commando.`, variant: 'destructive', description: err }); });
+                    .catch((err) => {
+                        toast({ title: `Error ejecutando el commando.`, variant: 'destructive', description: err });
+                        setInactive(false);
+                        setLoading(false);
+                    });
 
             } else {
                 toast({ title: "Error al guardar", variant: "destructive" });
+                setInactive(false);
+                setLoading(false);
             }
         } catch (error) {
             console.error("Error al enviar configuración:", error);
             toast({ title: "Error al guardar", variant: "destructive" });
+            setInactive(false);
+            setLoading(false);
         }
     };
 
@@ -268,7 +287,11 @@ export default function ConfigPage() {
                         </section>
                     </section>
                     <section className="flex flex-col md:flex-row justify-end w-full mb-12 pt-4">
-                        <Button type="submit" size={'lg'} className="text-xl">Guardar</Button>
+                        <Button type="submit" disabled={inactive} size={'lg'} className="text-xl">
+                            {loading &&
+                                <Loader className="animate-spin" />
+                            }
+                            Guardar</Button>
                     </section>
                 </form>
             </Form>

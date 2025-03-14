@@ -19,42 +19,42 @@ export function Navbar({ setPage }: Readonly<{ setPage: React.Dispatch<React.Set
 
     return (
         <NavigationMenu className="flex flex-col min-w-screen max-w-screen w-screen items-start gap-0 p-4 border-b border-[#333]">
-            <NavigationMenuList>
-                <button onClick={() => setPage('general')}>
+            <NavigationMenuList className="flex flex-row gap-2 items-center">
+                <button className="p-0 m-0" onClick={() => setPage('general')}>
                     <Image src={Icon} alt="" width={32} />
                 </button>
 
-                <NavigationMenuItem>
-                    <button onClick={() => setPage('config')}>
-                        <NavigationMenuLink className={`md:text-normal text-sm ${navigationMenuTriggerStyle()}`}>
+                <NavigationMenuItem className="p-0 m-0">
+                    <button className="p-0 m-0" onClick={() => setPage('config')}>
+                        <NavigationMenuLink className={`md:text-normal p-0 m-0 text-[12px] ${navigationMenuTriggerStyle()}`}>
                             Configuración
                         </NavigationMenuLink>
                     </button>
                 </NavigationMenuItem>
-                <NavigationMenuItem>
-                    <button onClick={() => setPage('services')}>
-                        <NavigationMenuLink className={`md:text-normal text-sm ${navigationMenuTriggerStyle()}`}>
+                <NavigationMenuItem className="p-0 m-0">
+                    <button className="p-0 m-0" onClick={() => setPage('services')}>
+                        <NavigationMenuLink className={`md:text-normal p-0 m-0 text-[12px] ${navigationMenuTriggerStyle()}`}>
                             Servicios
                         </NavigationMenuLink>
                     </button>
                 </NavigationMenuItem>
-                <NavigationMenuItem>
-                    <button onClick={() => setPage('details')}>
-                        <NavigationMenuLink className={` md:text-normal text-sm ${navigationMenuTriggerStyle()}`}>
+                <NavigationMenuItem className="p-0 m-0">
+                    <button className="p-0 m-0" onClick={() => setPage('details')}>
+                        <NavigationMenuLink className={` md:text-normal text-[12px] ${navigationMenuTriggerStyle()}`}>
                             Detalles
                         </NavigationMenuLink>
                     </button>
                 </NavigationMenuItem>
-                <NavigationMenuItem>
-                    <button onClick={() => setPage('actions')}>
-                        <NavigationMenuLink className={`md:text-normal text-sm ${navigationMenuTriggerStyle()}`}>
+                <NavigationMenuItem className="p-0 m-0">
+                    <button className="p-0 m-0" onClick={() => setPage('actions')}>
+                        <NavigationMenuLink className={`md:text-normal p-0 m-0 text-[12px] ${navigationMenuTriggerStyle()}`}>
                             Acciones
                         </NavigationMenuLink>
                     </button>
                 </NavigationMenuItem>
-                <NavigationMenuItem>
-                    <button disabled className="text-[#AAA]" onClick={() => setPage('help')}>
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                <NavigationMenuItem className="p-0 m-0">
+                    <button disabled className="text-[#AAA] p-0 m-0" onClick={() => setPage('help')}>
+                        <NavigationMenuLink className={`md:text-normal p-0 m-0 text-[12px] ${navigationMenuTriggerStyle()}`}>
                             Ayuda
                         </NavigationMenuLink>
                     </button>
