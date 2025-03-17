@@ -33,42 +33,54 @@ export default async function handler(req: any, res: any) {
 
 
     // Manejo de comando tailscaleJoin
-    if (tailscaleJoin === "true") {
-        const CONFIG_PATH = "/etc/config.json";
+ if (tailscaleJoin === "true") {
+    const CONFIG_PATH = "/etc/config.json";
 
+    try {
         const data = await fs.readFile(CONFIG_PATH, "utf-8");
         const config = JSON.parse(data);
-
         const uniqueId = await getUniqueIdentifier();
         const hostname = `RUD1-${config.device.name}-${uniqueId}`;
-        // Usamos spawn para ejecutar tailscale up de manera no bloqueante
+
         const tailscaleProcess = spawn(`tailscale up --hostname "${hostname}" --accept-routes --advertise-exit-node --advertise-routes 10.0.0.0/8,192.168.0.0/16,172.0.0.0/8`, { shell: true });
 
-        let urlMatch: any[] | null = null;
+        let responded = false;
+        const timeout = setTimeout(() => {
+            if (!responded) {
+                responded = true;
+                res.status(500).json({ success: false, error: "Timeout esperando la URL de autenticación." });
+                tailscaleProcess.kill();
+            }
+        }, 10000); // Timeout de 10 segundos
+
         tailscaleProcess.stdout.on('data', (data) => {
-            // Buscar la URL en la salida
             const output = data.toString();
-            urlMatch = output.match(/https:\/\/login.tailscale.com\/.*\b/);
-            if (urlMatch) {
-                // Si encontramos la URL, la mandamos al frontend
-                res.status(200).json(JSON.stringify({ success: true, url: urlMatch[0] }));
+            const urlMatch = output.match(/https:\/\/login.tailscale.com\/.*\b/);
+            if (urlMatch && !responded) {
+                responded = true;
+                clearTimeout(timeout);
+                res.status(200).json({ success: true, url: urlMatch[0] });
             }
         });
 
-        // tailscaleProcess.stderr.on('data', (data) => {
-        //     // Capturar cualquier error
-        //     console.error(`stderr: ${data}`);
-        // });
+        tailscaleProcess.stderr.on('data', (data) => {
+            console.error(`stderr: ${data}`);
+        });
 
         tailscaleProcess.on('close', (code) => {
-            // Si el proceso se cierra sin encontrar la URL
-            if (!urlMatch) {
-                res.status(500).json(JSON.stringify({ success: false, error: "No se encontró una URL de autenticación." }));
+            if (!responded) {
+                responded = true;
+                clearTimeout(timeout);
+                res.status(500).json({ success: false, error: "No se encontró una URL de autenticación." });
             }
         });
 
-        return; // Terminamos el procesamiento aquí para no bloquear el flujo
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ success: false, error: "Error al leer la configuración o iniciar tailscale." });
     }
+    return;
+}
 
     // Manejo del parámetro once
     if (once === "true") {
