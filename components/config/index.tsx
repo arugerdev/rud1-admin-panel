@@ -512,7 +512,7 @@ export default function ConfigPage() {
                                             <SelectGroup>
                                                 <SelectLabel>Redes WiFi</SelectLabel>
                                                 {wifiNetworks.map((network) => (
-                                                    <SelectItem key={network.ssid} value={network.ssid}>
+                                                    <SelectItem key={network.ssid} value={network.ssid ?? 'RED NO IDENTIFICADA'}>
                                                         {network.ssid} (Señal: {network.signal}, Seguridad: {network.security})
                                                     </SelectItem>
                                                 ))}
