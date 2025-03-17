@@ -232,8 +232,10 @@ export default function ConfigPage() {
             const response = await fetch("/api/execute?command=sudo nmcli dev wifi");
             const output = await response.json();
 
+            console.log(output)
+
             // Procesar la salida del comando para obtener las redes WiFi
-            const lines = await output.output.split("\n").slice(1); // Ignorar la primera línea (encabezados)
+            const lines = output.output.split("\n").slice(1); // Ignorar la primera línea (encabezados)
             const networks = lines.map((line: any) => {
                 // Dividir la línea en columnas, teniendo en cuenta que SSID y SECURITY pueden contener espacios
                 const columns = line.trim().split(/\s{2,}/); // Dividir por dos o más espacios
