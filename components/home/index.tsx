@@ -51,7 +51,7 @@ export default function HomePage() {
     const connectToTailscale = async () => {
         fetch(`/api/execute?tailscaleJoin=true`)
             .then((res) => res.json())
-            .then((data) => { setTailscaleConnectURL(JSON.parse(data).url); console.log(JSON.parse(data).url) })
+            .then((data) => { setTailscaleConnectURL(data.url); console.log(data.url) })
             .catch((err) => { console.error("Error ejecutando el commando:", err) });
     };
 
