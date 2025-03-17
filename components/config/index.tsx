@@ -117,6 +117,9 @@ export default function ConfigPage() {
     const [loading, setLoading] = useState<boolean>(false);
     const [selectedInterface, setSelectedInterface] = useState<string>("eth0"); // Estado para la interfaz seleccionada
 
+    const [wifiNetworks, setWifiNetworks] = useState<{ ssid: string; signal: string; security: string }[]>([]);
+    const [selectedWifi, setSelectedWifi] = useState<string>("");
+
     const { toast } = useToast();
     const form = useForm<FormValues>({
         defaultValues: {
@@ -224,7 +227,54 @@ export default function ConfigPage() {
         },
     });
 
+    const scanWifi = async () => {
+        try {
+            const response = await fetch("/api/scan-wifi");
+            const data = await response.json();
+            setWifiNetworks(data.networks ?? []);
+        } catch (error) {
+            console.error("Error escaneando redes WiFi:", error);
+            toast({ title: "Error escaneando redes WiFi", variant: "destructive" });
+        }
+    };
+
+    const connectToWifi = async () => {
+        if (!config) return
+        const password = form.getValues(`network.interfaces.${config.network.interfaces.findIndex(
+            (int) => int.name === "wlan0"
+        )}.password`);
+
+        if (!selectedWifi || !password) {
+            toast({ title: "Selecciona una red WiFi e ingresa la contraseña", variant: "destructive" });
+            return;
+        }
+
+        try {
+            const response = await fetch("/api/connect-wifi", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ssid: selectedWifi, password }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Error conectando a la red WiFi");
+            }
+
+            toast({ title: `Conectado a la red WiFi: ${selectedWifi}` });
+        } catch (error) {
+            console.error("Error conectando a la red WiFi:", error);
+            toast({ title: "Error conectando a la red WiFi", variant: "destructive" });
+        }
+    };
+
     useEffect(() => {
+        setInterval(() => {
+            scanWifi()
+        }, 3000)
+    }, [])
+
+    useEffect(() => {
+
         fetch("/api/config")
             .then((res) => res.json())
             .then((data) => {
@@ -262,15 +312,32 @@ export default function ConfigPage() {
                         setLoading(false);
                     });
 
-                fetch("/api/execute?command=sudo python3 /etc/applyNetplan.py")
-                    .then((res) => res.json())
-                    .then((data) => {
-                        fetch(`/api/execute?command=sudo systemctl restart NetworkManager`).finally(() => {
-                            toast({ title: `Configuracion Aplicada`, description: data });
+                config?.network.interfaces.forEach(int => {
+                    fetch(`/api/execute?command=sudo nmcli connection modify ${int.name} ipv4.method ${int.mode === 'dhcp' ? 'auto' : `manual ipv4.addresses ${int.ipv4} ipv4.gateway ${int.gateway} ipv4.dns ${int.dns}`}`)
+                        .catch((err) => {
+                            toast({ title: `Error ejecutando el commando.`, variant: 'destructive', description: err });
                             setInactive(false);
                             setLoading(false);
-                        })
-                    })
+                        });
+
+                    if (int.type === 'wifi') {
+                        fetch(`/api/execute?command=sudo nmcli dev wifi connect ${int.ssid} password  ${int.password}`)
+                            .catch((err) => {
+                                toast({ title: `Error ejecutando el commando.`, variant: 'destructive', description: err });
+                                setInactive(false);
+                                setLoading(false);
+                            });
+
+                    }
+                    fetch(`/api/execute?command=sudo nmcli connection down ${int.name} && sudo nmcli connection up ${int.name}`)
+                        .catch((err) => {
+                            toast({ title: `Error ejecutando el commando.`, variant: 'destructive', description: err });
+                            setInactive(false);
+                            setLoading(false);
+                        });
+                });
+
+                fetch(`/api/execute?command=sudo systemctl restart NetworkManager`)
                     .catch((err) => {
                         toast({ title: `Error ejecutando el commando.`, variant: 'destructive', description: err });
                         setInactive(false);
@@ -407,9 +474,12 @@ export default function ConfigPage() {
                                     />
                                 </>
                             )}
+
+
                         </section>
 
                         <section className="flex flex-col w-full items-center md:items-start md:w-1/2 h-full gap-4">
+
                             {/* Configuración de cada interfaz de red (Solo quiero configurar el tipo de metodo DHCP o ESTATICA) */}
                             <h1 className="font-extrabold text-xl">Interfaces de Red</h1>
                             <section className="flex flex-col gap-2">
@@ -426,6 +496,38 @@ export default function ConfigPage() {
                                     </section>
                                 ))}
                             </section>
+
+                            <section className="flex flex-col gap-4">
+                                <h1 className="font-extrabold text-xl">Redes WiFi Disponibles</h1>
+                                {loading ? <Loader className="animate-spin" /> : ""}
+
+                                {wifiNetworks.length > 0 && (
+                                    <Select onValueChange={(value) => setSelectedWifi(value)}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Selecciona una red WiFi" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                                <SelectLabel>Redes WiFi</SelectLabel>
+                                                {wifiNetworks.map((network) => (
+                                                    <SelectItem key={network.ssid} value={network.ssid}>
+                                                        {network.ssid} (Señal: {network.signal}, Seguridad: {network.security})
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+                                )}
+
+                                {selectedWifi && (
+                                    <Button onClick={connectToWifi} disabled={loading}>
+                                        {loading ? <Loader className="animate-spin" /> : `Conectar a ${selectedWifi}`}
+                                    </Button>
+                                )}
+                            </section>
+
                             <h1 className="font-extrabold text-xl">Configuración Wifi</h1>
 
                             <FormField
