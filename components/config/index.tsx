@@ -229,9 +229,43 @@ export default function ConfigPage() {
 
     const scanWifi = async () => {
         try {
-            const response = await fetch("/api/scan-wifi");
-            const data = await response.json();
-            setWifiNetworks(data.networks ?? []);
+            const response = await fetch("/api/execute?command=sudo nmcli dev wifi");
+            const output = await response.json();
+
+            // Procesar la salida del comando para obtener las redes WiFi
+            const lines = output.stdout.split("\n").slice(1); // Ignorar la primera línea (encabezados)
+            const networks = lines.map((line: any) => {
+                // Dividir la línea en columnas, teniendo en cuenta que SSID y SECURITY pueden contener espacios
+                const columns = line.trim().split(/\s{2,}/); // Dividir por dos o más espacios
+                if (columns.length < 8) return null; // Ignorar líneas mal formadas
+
+                const [
+                    inUse,
+                    bssid,
+                    ssid,
+                    mode,
+                    channel,
+                    rate,
+                    signal,
+                    bars,
+                    security,
+                ] = columns;
+
+                return {
+                    inUse: inUse.trim() === "*", // Indica si la red está en uso
+                    bssid: bssid.trim(),
+                    ssid: ssid.trim(),
+                    mode: mode.trim(),
+                    channel: parseInt(channel.trim(), 10),
+                    rate: rate.trim(),
+                    signal: parseInt(signal.trim(), 10),
+                    bars: bars.trim(),
+                    security: security.trim(),
+                };
+            }).filter((network: any) => network !== null); // Filtrar líneas mal formadas
+
+
+            setWifiNetworks(networks);
         } catch (error) {
             console.error("Error escaneando redes WiFi:", error);
             toast({ title: "Error escaneando redes WiFi", variant: "destructive" });
@@ -239,7 +273,7 @@ export default function ConfigPage() {
     };
 
     const connectToWifi = async () => {
-        if (!config) return
+        if (!config) return;
         const password = form.getValues(`network.interfaces.${config.network.interfaces.findIndex(
             (int) => int.name === "wlan0"
         )}.password`);
@@ -250,14 +284,11 @@ export default function ConfigPage() {
         }
 
         try {
-            const response = await fetch("/api/connect-wifi", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ssid: selectedWifi, password }),
-            });
+            const response = await fetch(`/api/execute?command=sudo nmcli dev wifi connect "${selectedWifi}" password "${password}"`);
+            const output = await response.json();
 
-            if (!response.ok) {
-                throw new Error("Error conectando a la red WiFi");
+            if (output.stderr) {
+                throw new Error(output.stderr);
             }
 
             toast({ title: `Conectado a la red WiFi: ${selectedWifi}` });
@@ -268,9 +299,11 @@ export default function ConfigPage() {
     };
 
     useEffect(() => {
-        setInterval(() => {
+        const interval = setInterval(() => {
             scanWifi()
         }, 3000)
+
+        return () => clearInterval(interval); // Limpiar el intervalo al desmontar el componente
     }, [])
 
     useEffect(() => {
@@ -301,7 +334,6 @@ export default function ConfigPage() {
             });
 
             if (res.ok) {
-                toast({ title: "Configuración guardada con éxito" });
 
                 fetch(`/api/execute?command=sudo hostnamectl set-hostname ${config?.device.name.toLocaleLowerCase().split(' ').join('-').toString()}`)
                     .then((res) => res.json())
@@ -336,6 +368,10 @@ export default function ConfigPage() {
                             setLoading(false);
                         });
                 });
+
+                toast({ title: "Configuración guardada y aplicada con éxito" });
+                setInactive(false);
+                setLoading(false);
 
                 fetch(`/api/execute?command=sudo systemctl restart NetworkManager`)
                     .catch((err) => {
