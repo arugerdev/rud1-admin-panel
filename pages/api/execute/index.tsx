@@ -53,7 +53,7 @@ export default async function handler(req: any, res: any) {
             }
         }, 10000); // Timeout de 10 segundos
 
-        tailscaleProcess.stdout.on('data', (data) => {
+        tailscaleProcess.stderr.on('data', (data) => {
             const output = data.toString();
             const urlMatch = output.match(/https:\/\/login.tailscale.com\/.*\b/);
             if (urlMatch && !responded) {
