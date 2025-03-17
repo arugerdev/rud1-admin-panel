@@ -42,6 +42,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             })
             .filter((network) => network !== null); // Filtrar líneas mal formadas
 
-        res.json({ networks });
+        return res.json({ networks });
     });
 }
