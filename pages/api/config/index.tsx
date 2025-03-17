@@ -1,8 +1,8 @@
 import fs from "fs/promises";
 import { NextApiRequest, NextApiResponse } from "next";
 
-const CONFIG_PATH = "/etc/config.json";
-// const CONFIG_PATH = "C:/etc/config.json";
+// const CONFIG_PATH = "/etc/config.json";
+const CONFIG_PATH = "C:/etc/config.json";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const filePath = CONFIG_PATH;

@@ -19,59 +19,210 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectL
 import { Loader } from "lucide-react";
 
 type FormValues = {
-    deviceName: string;
-    networkConfig: {
+    device: {
+        name: string;
+        description: string;
+        location: string;
+        manufacturer: string;
+        model: string;
+        serial_number: string;
+        firmware_version: string;
+        os: {
+            name: string;
+            version: string;
+            kernel: string;
+        };
+    };
+    network: {
         interfaces: {
             name: string;
             type: string;
-            method: string;
+            ipv4: string;
+            netmask: string;
+            gateway: string;
+            dns: string[];
+            status: string;
+            mode?: string;
             ssid?: string;
             password?: string;
         }[];
-        ipAddress: string;
-        gateway: string;
-        dns: string[];
+        tailscale: {
+            enabled: boolean;
+            status: string;
+            tailscale_ip: string;
+        };
     };
-    simConfig: {
-        pin: string;
+    services: {
+        virtualhere: {
+            enabled: boolean;
+            status: string;
+            version: string;
+        };
+        dhcp: {
+            enabled: boolean;
+            status: string;
+            range: string;
+        };
+        dns: {
+            enabled: boolean;
+            status: string;
+            servers: string[];
+        };
     };
-    tailscale: {
-        public_ip: string;
+    system: {
+        status: string;
+        uptime: string;
+        cpu: {
+            usage_percent: number;
+            temperature: number;
+            load_average: number[];
+        };
+        memory: {
+            total_mb: number;
+            used_mb: number;
+            free_mb: number;
+            usage_percent: number;
+        };
+        disk: {
+            total_gb: number;
+            used_gb: number;
+            free_gb: number;
+            usage_percent: number;
+        };
+        network_usage: {
+            eth0: {
+                rx_bytes: number;
+                tx_bytes: number;
+            };
+            wlan0: {
+                rx_bytes: number;
+                tx_bytes: number;
+            };
+        };
     };
+    logs: {
+        system_logs: string;
+        service_logs: {
+            tailscale: string;
+            virtualhere: string;
+            cloudflare_tunnel: string;
+        };
+    };
+    last_updated: string;
 };
 
 export default function ConfigPage() {
     const [config, setConfig] = useState<FormValues | null>(null);
     const [inactive, setInactive] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
+    const [selectedInterface, setSelectedInterface] = useState<string>("eth0"); // Estado para la interfaz seleccionada
 
     const { toast } = useToast();
     const form = useForm<FormValues>({
         defaultValues: {
-            deviceName: "",
-            networkConfig: {
-                ipAddress: "",
-                gateway: "",
-                dns: ["", ""],
+            device: {
+                name: "",
+                description: "",
+                location: "",
+                manufacturer: "",
+                model: "",
+                serial_number: "",
+                firmware_version: "",
+                os: {
+                    name: "",
+                    version: "",
+                    kernel: "",
+                },
+            },
+            network: {
                 interfaces: [
-                    { name: "eth0", type: "Ethernet", method: "dhcp" },
-                    { name: "wlan0", type: "Wi-Fi", method: "dhcp", ssid: '', password: '' },
+                    {
+                        name: "eth0",
+                        type: "ethernet",
+                        ipv4: "",
+                        netmask: "",
+                        gateway: "",
+                        dns: [],
+                        status: "",
+                    },
+                    {
+                        name: "wlan0",
+                        type: "wifi",
+                        ipv4: "",
+                        netmask: "",
+                        gateway: "",
+                        dns: [],
+                        status: "",
+                        mode: "",
+                        ssid: "",
+                        password: "",
+                    },
                 ],
+                tailscale: {
+                    enabled: false,
+                    status: "",
+                    tailscale_ip: "",
+                },
             },
-            simConfig: {
-                pin: "",
+            services: {
+                virtualhere: {
+                    enabled: false,
+                    status: "",
+                    version: "",
+                },
+                dhcp: {
+                    enabled: false,
+                    status: "",
+                    range: "",
+                },
+                dns: {
+                    enabled: false,
+                    status: "",
+                    servers: [],
+                },
             },
-            tailscale: {
-                public_ip: ""
-            }
-        }
+            system: {
+                status: "",
+                uptime: "",
+                cpu: {
+                    usage_percent: 0,
+                    temperature: 0,
+                    load_average: [],
+                },
+                memory: {
+                    total_mb: 0,
+                    used_mb: 0,
+                    free_mb: 0,
+                    usage_percent: 0,
+                },
+                disk: {
+                    total_gb: 0,
+                    used_gb: 0,
+                    free_gb: 0,
+                    usage_percent: 0,
+                },
+                network_usage: {
+                    eth0: {
+                        rx_bytes: 0,
+                        tx_bytes: 0,
+                    },
+                    wlan0: {
+                        rx_bytes: 0,
+                        tx_bytes: 0,
+                    },
+                },
+            },
+            logs: {
+                system_logs: "",
+                service_logs: {
+                    tailscale: "",
+                    virtualhere: "",
+                    cloudflare_tunnel: "",
+                },
+            },
+            last_updated: "",
+        },
     });
-
-    // const { fields, append, remove } = useFieldArray({
-    //     control: form.control,
-    //     name: NEVER,
-    //     rules: { minLength: 1, maxLength: 5 }
-    // })
 
     useEffect(() => {
         fetch("/api/config")
@@ -89,7 +240,6 @@ export default function ConfigPage() {
         }
     }, [config]);
 
-
     const onSubmit = async (values: any) => {
         setInactive(true);
         setLoading(true);
@@ -103,7 +253,7 @@ export default function ConfigPage() {
             if (res.ok) {
                 toast({ title: "Configuración guardada con éxito" });
 
-                fetch(`/api/execute?command=sudo hostnamectl set-hostname ${config?.deviceName.toLocaleLowerCase().split(' ').join('-').toString()}`)
+                fetch(`/api/execute?command=sudo hostnamectl set-hostname ${config?.device.name.toLocaleLowerCase().split(' ').join('-').toString()}`)
                     .then((res) => res.json())
                     .then((data) => { })
                     .catch((err) => {
@@ -142,7 +292,12 @@ export default function ConfigPage() {
 
     if (!config) return <p>Cargando...</p>;
     if (!form) return <p>Error al cargar el formulario</p>;
-    if (!config.deviceName) return <p>Error: no se ha podido cargar la configuración</p>
+    if (!config.device.name) return <p>Error: no se ha podido cargar la configuración</p>
+
+    // Obtener la interfaz seleccionada
+    const selectedInterfaceData = config.network.interfaces.find(
+        (int) => int.name === selectedInterface
+    );
 
     return (
         <section className="flex flex-col items-start gap-8 px-8 w-full h-full max-w-screen max-h-screen">
@@ -152,8 +307,8 @@ export default function ConfigPage() {
                     <section className="flex flex-col md:flex-row gap-12 w-full">
                         <section className="flex flex-col w-full items-center md:items-start md:w-1/2 gap-4">
                             <section className="flex flex-col gap-0 p-0 m-0">
-                                <h1 className="text-xl font-bold">{config.deviceName}</h1>
-                                <h2 className="text-sm">{config.tailscale.public_ip}</h2>
+                                <h1 className="text-xl font-bold">{config.device.name}</h1>
+                                <h2 className="text-sm">{config.services.tailscale.tailscale_ip}</h2>
                             </section>
                             <Alert variant="destructive" >
                                 <AlertTitle>Espera!</AlertTitle>
@@ -166,7 +321,7 @@ export default function ConfigPage() {
                             <h1 className="font-extrabold text-xl">Configuración General</h1>
                             <FormField
                                 control={form.control}
-                                name="deviceName"
+                                name="device.name"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Nombre del dispositivo:</FormLabel>
@@ -178,63 +333,92 @@ export default function ConfigPage() {
                             />
                             <h1 className="font-extrabold text-xl">Configuración de Red</h1>
 
-                            <FormField
-                                control={form.control}
-                                name="networkConfig.ipAddress"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Dirección IP:</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="192.168.0.10/24" {...field} />
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
+                            {/* Selector de interfaz */}
+                            <FormItem>
+                                <FormLabel>Interfaz de red:</FormLabel>
+                                <Select
+                                    value={selectedInterface}
+                                    onValueChange={(value) => setSelectedInterface(value)}
+                                >
+                                    <FormControl>
+                                        <SelectTrigger className="w-[180px]">
+                                            <SelectValue placeholder="Selecciona una interfaz" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            <SelectLabel>Interfaces</SelectLabel>
+                                            {config.network.interfaces.map((int) => (
+                                                <SelectItem key={int.name} value={int.name}>
+                                                    {int.name} ({int.type})
+                                                </SelectItem>
+                                            ))}
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                            </FormItem>
 
-                            <FormField
-                                control={form.control}
-                                name="networkConfig.gateway"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Gateway:</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="192.168.0.1/24" {...field} />
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
+                            {/* Configuración de red dinámica */}
+                            {selectedInterfaceData && (
+                                <>
+                                    <FormField
+                                        control={form.control}
+                                        name={`network.interfaces.${config.network.interfaces.findIndex(
+                                            (int) => int.name === selectedInterface
+                                        )}.ipv4`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Dirección IP:</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="192.168.0.10/24" {...field} />
+                                                </FormControl>
+                                            </FormItem>
+                                        )}
+                                    />
 
+                                    <FormField
+                                        control={form.control}
+                                        name={`network.interfaces.${config.network.interfaces.findIndex(
+                                            (int) => int.name === selectedInterface
+                                        )}.gateway`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Gateway:</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="192.168.0.1/24" {...field} />
+                                                </FormControl>
+                                            </FormItem>
+                                        )}
+                                    />
 
-                            <div>
-                                <FormField
-                                    control={form.control}
-                                    name={`networkConfig.dns`}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>
-                                                DNS
-                                            </FormLabel>
-                                            <FormControl>
-                                                <Input {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                            </div>
-
+                                    <FormField
+                                        control={form.control}
+                                        name={`network.interfaces.${config.network.interfaces.findIndex(
+                                            (int) => int.name === selectedInterface
+                                        )}.dns`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>DNS:</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="8.8.8.8, 8.8.4.4" {...field} />
+                                                </FormControl>
+                                            </FormItem>
+                                        )}
+                                    />
+                                </>
+                            )}
                         </section>
+
                         <section className="flex flex-col w-full items-center md:items-start md:w-1/2 h-full gap-4">
                             {/* Configuración de cada interfaz de red (Solo quiero configurar el tipo de metodo DHCP o ESTATICA) */}
                             <h1 className="font-extrabold text-xl">Interfaces de Red</h1>
                             <section className="flex flex-col gap-2">
-                                {config.networkConfig.interfaces.map((int, i) => (
+                                {config.network.interfaces.map((int, i) => (
                                     <section key={int.name + i} className="flex flex-row gap-4">
                                         <h2 className="font-bold">{int.name} ({int.type})</h2>
                                         <FormField
                                             control={form.control}
-                                            name={`networkConfig.interfaces.${i}.method`}
+                                            name={`network.interfaces.${i}.mode`}
                                             render={({ field }) => (
                                                 <MethodSelect field={field} />
                                             )}
@@ -242,24 +426,13 @@ export default function ConfigPage() {
                                     </section>
                                 ))}
                             </section>
-                            <h1 className="font-extrabold text-xl">Configuración de SIM</h1>
-                            <FormField
-                                control={form.control}
-                                name="simConfig.pin"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>PIN de la SIM:</FormLabel>
-                                        <FormControl>
-                                            <Input type="password" placeholder="0000" {...field} />
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
                             <h1 className="font-extrabold text-xl">Configuración Wifi</h1>
 
                             <FormField
                                 control={form.control}
-                                name="networkConfig.interfaces.1.ssid"
+                                name={`network.interfaces.${config.network.interfaces.findIndex(
+                                    (int) => int.name === "wlan0"
+                                )}.ssid`}
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>SSID:</FormLabel>
@@ -271,7 +444,9 @@ export default function ConfigPage() {
                             />
                             <FormField
                                 control={form.control}
-                                name="networkConfig.interfaces.1.password"
+                                name={`network.interfaces.${config.network.interfaces.findIndex(
+                                    (int) => int.name === "wlan0"
+                                )}.password`}
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Contraseña:</FormLabel>
@@ -296,18 +471,15 @@ export default function ConfigPage() {
     );
 }
 
-
 const MethodSelect = ({ field }: { field: any }) => {
     return (
         <FormItem>
-
             <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                     <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Selecciona un método" />
                     </SelectTrigger>
                 </FormControl>
-
                 <SelectContent>
                     <SelectGroup>
                         <SelectLabel>Metodos</SelectLabel>
@@ -318,5 +490,5 @@ const MethodSelect = ({ field }: { field: any }) => {
                 </SelectContent>
             </Select>
         </FormItem>
-    )
-}
+    );
+};
