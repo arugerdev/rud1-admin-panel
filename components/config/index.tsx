@@ -117,7 +117,17 @@ export default function ConfigPage() {
     const [loading, setLoading] = useState<boolean>(false);
     const [selectedInterface, setSelectedInterface] = useState<string>("eth0"); // Estado para la interfaz seleccionada
 
-    const [wifiNetworks, setWifiNetworks] = useState<{ ssid: string; signal: string; security: string }[]>([]);
+    const [wifiNetworks, setWifiNetworks] = useState<{
+        inUse: boolean;
+        bssid: string;
+        ssid: string;
+        mode: string;
+        channel: number;
+        rate: string;
+        signal: number;
+        bars: string;
+        security: string;
+    }[]>([]);
     const [selectedWifi, setSelectedWifi] = useState<string>("");
 
     const { toast } = useToast();
@@ -231,41 +241,46 @@ export default function ConfigPage() {
         try {
             const response = await fetch("/api/execute?command=sudo nmcli dev wifi");
             const output = await response.json();
+            const wifis = JSON.parse(output);
 
-            const wifis = JSON.parse(output)
 
             // Procesar la salida del comando para obtener las redes WiFi
-            const lines = wifis.output.split("\n").slice(1); // Ignorar la primera línea (encabezados)
-            const networks = lines.map((line: any) => {
-                // Dividir la línea en columnas, teniendo en cuenta que SSID y SECURITY pueden contener espacios
-                const columns = line.trim().split(/\s{2,}/); // Dividir por dos o más espacios
-                if (columns.length < 8) return null; // Ignorar líneas mal formadas
+            const networks = wifis.output
+                .slice(1) // Ignorar la primera línea (encabezados)
+                .map((line: string) => {
 
-                const [
-                    inUse,
-                    bssid,
-                    ssid,
-                    mode,
-                    channel,
-                    rate,
-                    signal,
-                    bars,
-                    security,
-                ] = columns;
+                    // Validar que la línea no esté vacía
+                    if (!line.trim()) return null;
 
-                return {
-                    inUse: inUse.trim() === "*", // Indica si la red está en uso
-                    bssid: bssid.trim(),
-                    ssid: ssid.trim(),
-                    mode: mode.trim(),
-                    channel: parseInt(channel.trim(), 10),
-                    rate: rate.trim(),
-                    signal: parseInt(signal.trim(), 10),
-                    bars: bars.trim(),
-                    security: security.trim(),
-                };
-            }).filter((network: any) => network !== null); // Filtrar líneas mal formadas
+                    // Dividir la línea en columnas, teniendo en cuenta que SSID y SECURITY pueden contener espacios
+                    const columns = line.split(/\s{2,}/); // Dividir por dos o más espacios
+                    if (columns.length < 8) return null; // Ignorar líneas mal formadas
 
+                    const [
+                        inUse,
+                        bssid,
+                        ssid,
+                        mode,
+                        channel,
+                        rate,
+                        signal,
+                        bars,
+                        security,
+                    ] = columns;
+
+                    return {
+                        inUse: inUse === "*", // Indica si la red está en uso
+                        bssid: bssid,
+                        ssid: ssid,
+                        mode: mode,
+                        channel: parseInt(channel, 10),
+                        rate: rate,
+                        signal: parseInt(signal, 10),
+                        bars: bars,
+                        security: security,
+                    };
+                })
+                .filter((network: any) => network !== null); // Filtrar líneas mal formadas
 
             setWifiNetworks(networks);
         } catch (error) {
@@ -549,9 +564,9 @@ export default function ConfigPage() {
                                         <SelectContent>
                                             <SelectGroup>
                                                 <SelectLabel>Redes WiFi</SelectLabel>
-                                                {wifiNetworks.map((network) => (
-                                                    <SelectItem key={network.ssid} value={network.ssid ?? 'RED NO IDENTIFICADA'}>
-                                                        {network.ssid} (Señal: {network.signal}, Seguridad: {network.security})
+                                                {wifiNetworks.map((network, i) => (
+                                                    <SelectItem className={network.inUse ? 'background-[#6E6]' : 'background-transparent'} key={network.ssid} value={network.ssid ?? 'RED NO IDENTIFICADA'}>
+                                                        {i + 1}. {network.ssid} (Señal: {network.signal}, Seguridad: {network.security}) {network.bars}
                                                     </SelectItem>
                                                 ))}
                                             </SelectGroup>
