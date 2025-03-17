@@ -46,13 +46,13 @@ type FormValues = {
             ssid?: string;
             password?: string;
         }[];
+    };
+    services: {
         tailscale: {
             enabled: boolean;
             status: string;
             tailscale_ip: string;
         };
-    };
-    services: {
         virtualhere: {
             enabled: boolean;
             status: string;
@@ -156,15 +156,15 @@ export default function ConfigPage() {
                         mode: "",
                         ssid: "",
                         password: "",
-                    },
-                ],
+                    }
+                ]
+            },
+            services: {
                 tailscale: {
                     enabled: false,
                     status: "",
                     tailscale_ip: "",
                 },
-            },
-            services: {
                 virtualhere: {
                     enabled: false,
                     status: "",
