@@ -35,9 +35,8 @@ export default async function handler(req: any, res: any) {
     // Manejo de comando tailscaleJoin
     if (tailscaleJoin === "true") {
         const CONFIG_PATH = "/etc/config.json";
-        const filePath = process.cwd() + CONFIG_PATH;
 
-        const data = await fs.readFile(filePath, "utf-8");
+        const data = await fs.readFile(CONFIG_PATH, "utf-8");
         const config = JSON.parse(data);
 
         const uniqueId = await getUniqueIdentifier();
@@ -46,7 +45,7 @@ export default async function handler(req: any, res: any) {
         const tailscaleProcess = spawn(`tailscale up --hostname "${hostname}" --accept-routes --advertise-exit-node --advertise-routes 10.0.0.0/8,192.168.0.0/16,172.0.0.0/8`, { shell: true });
 
         let urlMatch: any[] | null = null;
-        tailscaleProcess.stderr.on('data', (data) => {
+        tailscaleProcess.stdout.on('data', (data) => {
             // Buscar la URL en la salida
             const output = data.toString();
             urlMatch = output.match(/https:\/\/login.tailscale.com\/.*\b/);
